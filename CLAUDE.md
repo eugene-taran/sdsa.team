@@ -6,7 +6,7 @@ This is the public knowledge repository for SDSA (Software Development Smart Ass
 
 ## Purpose
 
-- **Knowledge Trees**: Interactive decision trees that guide developers through complex topics
+- **Knowledge Trees**: Interactive decision trees that guide everyone in tech through complex topics
 - **Resources**: Markdown guides and documentation referenced by knowledge trees
 - **Community Driven**: Open for contributions via pull requests
 - **Author Attribution**: Contributors are recognized in the app
