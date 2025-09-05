@@ -1,9 +1,15 @@
 {
   "version": "2025.09.05.0",
-  "released": "2025-09-05T00:00:00Z",
+  "released": "2025-09-05T10:57:21.609Z",
   "changelog": "Initial release with E2E testing knowledge block",
-  "size": "15KB",
-  "checksums": {},
+  "size": "12KB",
+  "checksums": {
+    "authors.json": "1e02366f90be6d88ba0f9d3e1ef26057a040bfc2e070bf4a38ad2dfa3c17e1e3",
+    "blocks/e2e-testing.yaml": "a391f81b98df5b2a00f277f1f8d0cabca370438b76f5319a43655ac86c714c3e",
+    "catalog.json": "b0e9b4694e341022d78f67cacb8e4cbd78ffc2aa93792bb99051089445979e75",
+    "resources/cypress-modern-setup.md": "2d70f484b1e63b67b653779266996217d978c23c2f6070648ee72156ff23634a",
+    "resources/playwright-parallel-setup.md": "9d3427e986259f7f73d650f20782c01fbfc2b984c00ef469dba5609959ec7089"
+  },
   "blocks": {
     "e2e-testing": {
       "version": "1.0.0",
