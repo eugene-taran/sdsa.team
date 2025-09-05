@@ -13,43 +13,26 @@ paths:
         options: ['v13+', 'v12', 'older']
         paths:
           'v13+':
-            resources: 
-              - 'cypress-modern-setup.md'
-              - 'cypress-best-practices.md'
-            summary: 'You have the latest Cypress. Check our optimization guides.'
+            summary: 'You have the latest Cypress. The AI assistant can help with component testing, custom commands, and optimization strategies.'
           'v12':
-            resources: 
-              - 'cypress-v12-guide.md'
-              - 'cypress-migration-v13.md'
-            summary: 'Consider upgrading to v13 for better performance.'
+            summary: 'Consider upgrading to v13 for better performance. Ask the AI for migration guidance and breaking changes.'
           older:
-            resources: 
-              - 'cypress-upgrade-urgent.md'
-            summary: 'Critical: Upgrade needed for security patches.'
+            summary: 'Critical: Upgrade needed for security patches. The AI can help you plan a safe upgrade path.'
       
       playwright:
         question: 'Are you running tests in parallel?'
         options: ['yes', 'no']
         paths:
           yes:
-            resources:
-              - 'playwright-parallel-optimization.md'
-            summary: 'Great! Check our parallel execution optimization guide.'
+            summary: 'Great! The AI can help optimize your parallel execution with sharding and worker configuration.'
           no:
-            resources:
-              - 'playwright-parallel-setup.md'
-            summary: 'Enable parallel execution to speed up your tests.'
+            summary: 'Enable parallel execution to speed up your tests. Ask the AI about workers and test.parallel configuration.'
       
       selenium:
-        resources:
-          - 'migrate-from-selenium.md'
-          - 'selenium-optimization.md'
-        summary: 'Consider migrating to Playwright for better performance.'
+        summary: 'Consider migrating to Playwright for better performance. The AI can help with migration strategies and WebDriver optimization.'
       
       other:
-        resources:
-          - 'e2e-framework-comparison.md'
-        summary: 'Review our framework comparison guide.'
+        summary: 'The AI assistant can help compare frameworks and recommend the best choice for your project.'
   
   no:
     question: "What's your primary application type?"
@@ -60,33 +43,19 @@ paths:
         options: ['react', 'vue', 'angular', 'other']
         paths:
           react:
-            resources:
-              - 'react-e2e-setup.md'
-              - 'playwright-react-guide.md'
-            summary: 'Playwright works great with React applications.'
+            summary: 'Playwright works great with React applications. The AI can help with React Testing Library integration and component selectors.'
           vue:
-            resources:
-              - 'vue-e2e-setup.md'
-            summary: 'Check our Vue-specific testing guide.'
+            summary: 'The AI can guide you through Vue-specific testing with Vitest and Playwright integration.'
           angular:
-            resources:
-              - 'angular-e2e-setup.md'
-            summary: 'Migrate from Protractor to modern solutions.'
+            summary: 'Migrate from Protractor to modern solutions. Ask the AI about WebDriver migration and Angular-specific selectors.'
           other:
-            resources:
-              - 'vanilla-e2e-setup.md'
-            summary: 'Simple E2E setup for any web app.'
+            summary: 'Simple E2E setup for any web app. The AI can recommend the best testing framework for your stack.'
       
       mobile:
-        resources:
-          - 'mobile-testing-intro.md'
-          - 'detox-setup.md'
-        summary: 'Mobile testing requires different tools.'
+        summary: 'Mobile testing requires different tools. The AI can help with Detox, Appium, or native testing framework setup.'
       
       desktop:
-        resources:
-          - 'desktop-e2e-guide.md'
-        summary: 'Desktop app testing has unique challenges.'
+        summary: 'Desktop app testing has unique challenges. Ask the AI about Electron testing with Playwright or Spectron alternatives.'
 
 context_variables:
   - has_test_system
