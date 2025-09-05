@@ -1,0 +1,24 @@
+{
+  "version": "2025.09.05.0",
+  "released": "2025-09-05T00:00:00Z",
+  "changelog": "Initial release with E2E testing knowledge block",
+  "size": "15KB",
+  "checksums": {},
+  "blocks": {
+    "e2e-testing": {
+      "version": "1.0.0",
+      "updated": "2025-09-05T00:00:00Z",
+      "size": "3KB"
+    }
+  },
+  "resources": {
+    "count": 0,
+    "totalSize": "0KB"
+  },
+  "statistics": {
+    "totalBlocks": 1,
+    "totalResources": 0,
+    "totalTopics": 4,
+    "activeTopics": 1
+  }
+}

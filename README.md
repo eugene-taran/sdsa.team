@@ -28,4 +28,4 @@ This repository is open source and available under the MIT License.
 
 ## Support
 
-For questions, please open an issue in this repository.
+For questions, please open an issue in this repository.d

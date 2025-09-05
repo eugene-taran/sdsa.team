@@ -1,0 +1,107 @@
+id: 'e2e-testing'
+title: 'End-to-End Testing Setup'
+description: 'Complete guide for setting up E2E testing in your project'
+initial_question: 'Do you have an existing test system in place?'
+
+paths:
+  yes:
+    question: 'Which testing framework are you currently using?'
+    options: ['cypress', 'playwright', 'selenium', 'other']
+    paths:
+      cypress:
+        question: 'What version of Cypress are you using?'
+        options: ['v13+', 'v12', 'older']
+        paths:
+          'v13+':
+            resources: 
+              - 'cypress-modern-setup.md'
+              - 'cypress-best-practices.md'
+            summary: 'You have the latest Cypress. Check our optimization guides.'
+          'v12':
+            resources: 
+              - 'cypress-v12-guide.md'
+              - 'cypress-migration-v13.md'
+            summary: 'Consider upgrading to v13 for better performance.'
+          older:
+            resources: 
+              - 'cypress-upgrade-urgent.md'
+            summary: 'Critical: Upgrade needed for security patches.'
+      
+      playwright:
+        question: 'Are you running tests in parallel?'
+        options: ['yes', 'no']
+        paths:
+          yes:
+            resources:
+              - 'playwright-parallel-optimization.md'
+            summary: 'Great! Check our parallel execution optimization guide.'
+          no:
+            resources:
+              - 'playwright-parallel-setup.md'
+            summary: 'Enable parallel execution to speed up your tests.'
+      
+      selenium:
+        resources:
+          - 'migrate-from-selenium.md'
+          - 'selenium-optimization.md'
+        summary: 'Consider migrating to Playwright for better performance.'
+      
+      other:
+        resources:
+          - 'e2e-framework-comparison.md'
+        summary: 'Review our framework comparison guide.'
+  
+  no:
+    question: "What's your primary application type?"
+    options: ['web', 'mobile', 'desktop']
+    paths:
+      web:
+        question: 'What frontend framework are you using?'
+        options: ['react', 'vue', 'angular', 'other']
+        paths:
+          react:
+            resources:
+              - 'react-e2e-setup.md'
+              - 'playwright-react-guide.md'
+            summary: 'Playwright works great with React applications.'
+          vue:
+            resources:
+              - 'vue-e2e-setup.md'
+            summary: 'Check our Vue-specific testing guide.'
+          angular:
+            resources:
+              - 'angular-e2e-setup.md'
+            summary: 'Migrate from Protractor to modern solutions.'
+          other:
+            resources:
+              - 'vanilla-e2e-setup.md'
+            summary: 'Simple E2E setup for any web app.'
+      
+      mobile:
+        resources:
+          - 'mobile-testing-intro.md'
+          - 'detox-setup.md'
+        summary: 'Mobile testing requires different tools.'
+      
+      desktop:
+        resources:
+          - 'desktop-e2e-guide.md'
+        summary: 'Desktop app testing has unique challenges.'
+
+context_variables:
+  - has_test_system
+  - current_framework
+  - framework_version
+  - app_type
+  - frontend_framework
+  - parallel_execution
+
+metadata:
+  author: 'eugene-taran'
+  contributors: []
+  version: '1.0.0'
+  created: '2024-12-15'
+  last_updated: '2024-12-15'
+  estimated_time: '10 minutes'
+  difficulty: 'intermediate'
+  tags: ['testing', 'e2e', 'automation']

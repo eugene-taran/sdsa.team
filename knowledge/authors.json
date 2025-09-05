@@ -1,0 +1,24 @@
+{
+  "authors": {
+    "eugene-taran": {
+      "name": "Eugene Taran",
+      "github": "eugene-taran",
+      "avatar": "https://github.com/eugene-taran.png",
+      "bio": "Software architect and SDSA creator",
+      "contributions": ["e2e-testing"],
+      "joined": "2024-12-15"
+    },
+    "sdsa-team": {
+      "name": "SDSA Team",
+      "github": "sdsa-team",
+      "avatar": "https://github.com/sdsa-team.png",
+      "bio": "Official SDSA content team",
+      "contributions": [],
+      "joined": "2024-12-15"
+    }
+  },
+  "stats": {
+    "totalAuthors": 2,
+    "totalContributions": 1
+  }
+}
