@@ -40,10 +40,15 @@ This repository contains:
 
 We welcome contributions! Add your knowledge:
 
+**Option A: Direct contribution (if you have write access)**
+1. **Create** a new branch
+2. **Add** your knowledge tree in `knowledge/blocks/`
+3. **Submit** a pull request
+
+**Option B: Fork contribution (for external contributors)**
 1. **Fork** this repository
 2. **Create** your knowledge tree in `knowledge/blocks/`
-3. **Add** supporting resources in `knowledge/resources/`
-4. **Submit** a pull request
+3. **Submit** a pull request from your fork
 
 See [CLAUDE.md](CLAUDE.md) for detailed contribution guidelines.
 
@@ -57,12 +62,18 @@ paths:
   yes:
     question: 'Follow-up question?'
     options: ['option1', 'option2']
-    resources: ['guide.md']
+    paths:
+      option1:
+        summary: 'AI assistant can help with implementation details'
+      option2:
+        summary: 'Ask the AI for specific guidance'
   no:
-    resources: ['alternative.md']
-    summary: 'Conclusion message'
+    summary: 'The AI can provide alternative approaches'
 metadata:
   author: 'your-github-username'
+  version: '1.0.0'
+  created: '2024-12-15'
+  difficulty: 'intermediate'
 ```
 
 ## 📦 Releases
