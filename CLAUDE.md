@@ -91,6 +91,10 @@ metadata:
 
 ## Contributing
 
+### Prerequisites
+
+- **Node.js**: Required for running validation scripts. [Download Node.js](https://nodejs.org/)
+
 ### Adding a New Knowledge Tree
 
 1. **Fork this repository**
@@ -174,14 +178,14 @@ Common issues and solutions
 
 Before submitting:
 ```bash
-# Validate YAML syntax
-node scripts/validate-yaml.js
+# Validate all YAML files
+node scripts/validate.js
+
+# Or validate a specific file
+node scripts/validate.js knowledge/blocks/your-topic.yaml
 
 # Generate checksums
 node scripts/generate-checksums.js
-
-# Test locally (if you have SDSA app)
-# Point app to your fork for testing
 ```
 
 ## Release Process
@@ -247,19 +251,31 @@ cd sdsa.team
 2. **Validate structure**:
 ```bash
 # Check YAML validity
-cat knowledge/blocks/your-topic.yaml | node -e "console.log(require('js-yaml').load(require('fs').readFileSync(0, 'utf8')))"
+node scripts/validate.js knowledge/blocks/your-topic.yaml
 ```
 
-3. **Test with app** (if available):
-- Point SDSA app to your fork
-- Navigate through your knowledge tree
-- Verify resources load correctly
+3. **Verify structure**:
+- Ensure YAML follows the correct format
+- Check that resources exist
+- Validate all paths are complete
 
 ### Pull Request Testing
 
-- CI will validate YAML syntax
-- Reviewers will check content quality
-- Test deployment available for verification
+When you submit a pull request, automated checks will run:
+
+1. **YAML Validation**: All YAML files must pass syntax validation
+2. **Required Files**: Checks for manifest.json, catalog.json, authors.json
+3. **Author Attribution**: Ensures all blocks have author metadata
+4. **Resource References**: Validates that all referenced resources exist
+
+The PR will be blocked from merging if any validation fails. You'll see:
+- ✅ Green check if all validations pass
+- ❌ Red X if any validation fails (with details in the logs)
+
+Manual review will check:
+- Content quality and accuracy
+- Appropriate difficulty level
+- Clear and helpful resources
 
 ## Community
 
@@ -357,5 +373,4 @@ When content becomes outdated:
 ## Contact
 
 - **Repository**: [github.com/eugene-taran/sdsa.team](https://github.com/eugene-taran/sdsa.team)
-- **Main App**: [github.com/eugene-taran/sdsa](https://github.com/eugene-taran/sdsa)
 - **Maintainer**: Eugene Taran (@eugene-taran)

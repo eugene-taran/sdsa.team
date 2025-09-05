@@ -99,19 +99,15 @@ Knowledge blocks are created by the community. Each block includes author attrib
 
 ## 🔗 Links
 
-- **Main App Repository**: [github.com/eugene-taran/sdsa](https://github.com/eugene-taran/sdsa)
 - **Documentation**: [CLAUDE.md](CLAUDE.md)
 - **Website**: [sdsa.team](https://sdsa.team)
 - **Releases**: [GitHub Releases](https://github.com/eugene-taran/sdsa.team/releases)
 
-## 📊 Stats
-
-- **Knowledge Blocks**: 1 (4 planned)
-- **Resources**: 2
-- **Contributors**: 1
-- **Latest Version**: See [manifest.json](knowledge/manifest.json)
-
 ## 🛠️ Development
+
+### Prerequisites
+
+- **Node.js**: Required for running validation scripts
 
 ### Test Your Content
 
@@ -120,20 +116,16 @@ Knowledge blocks are created by the community. Each block includes author attrib
 git clone https://github.com/eugene-taran/sdsa.team
 cd sdsa.team
 
-# Validate YAML
-cat knowledge/blocks/your-topic.yaml | node -e "console.log(require('js-yaml').load(require('fs').readFileSync(0, 'utf8')))"
+# Validate all YAML files
+node scripts/validate.js
+
+# Validate a specific file
+node scripts/validate.js knowledge/blocks/your-topic.yaml
 
 # Generate checksums
 node scripts/generate-checksums.js
 ```
 
-### Local Testing with App
-
-Point the SDSA app to your fork:
-```javascript
-// In app's knowledgeService.ts
-const KNOWLEDGE_BASE_URL = 'https://raw.githubusercontent.com/YOUR-USERNAME/sdsa.team/main';
-```
 
 ## 📄 License
 

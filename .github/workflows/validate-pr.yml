@@ -1,0 +1,133 @@
+name: Validate Pull Request
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'knowledge/**/*.yaml'
+      - 'knowledge/**/*.yml'
+      - 'knowledge/**/*.md'
+      - 'scripts/validate.js'
+
+jobs:
+  validate-yaml:
+    name: Validate YAML Files
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Validate all YAML files
+        run: |
+          echo "🔍 Validating YAML files..."
+          node scripts/validate.js
+          
+      - name: Check for required files
+        run: |
+          echo "📋 Checking required files..."
+          
+          # Check if manifest.json exists
+          if [ ! -f "knowledge/manifest.json" ]; then
+            echo "❌ Error: knowledge/manifest.json is missing"
+            exit 1
+          fi
+          
+          # Check if catalog.json exists
+          if [ ! -f "knowledge/catalog.json" ]; then
+            echo "❌ Error: knowledge/catalog.json is missing"
+            exit 1
+          fi
+          
+          # Check if authors.json exists
+          if [ ! -f "knowledge/authors.json" ]; then
+            echo "❌ Error: knowledge/authors.json is missing"
+            exit 1
+          fi
+          
+          echo "✅ All required files present"
+          
+      - name: Validate author attribution
+        run: |
+          echo "👥 Checking author attribution..."
+          
+          # Check if all YAML files have author metadata
+          for file in knowledge/blocks/*.yaml knowledge/blocks/*.yml; do
+            if [ -f "$file" ]; then
+              if ! grep -q "metadata:" "$file"; then
+                echo "❌ Error: $file is missing metadata section"
+                exit 1
+              fi
+              if ! grep -q "author:" "$file"; then
+                echo "❌ Error: $file is missing author attribution"
+                exit 1
+              fi
+            fi
+          done
+          
+          echo "✅ All files have author attribution"
+          
+      - name: Check resource references
+        run: |
+          echo "📚 Validating resource references..."
+          
+          # Create a Node.js script to check resource references
+          cat > check-resources.js << 'EOF'
+          const fs = require('fs');
+          const path = require('path');
+          
+          let hasErrors = false;
+          
+          // Get all YAML files
+          const blocksDir = path.join('knowledge', 'blocks');
+          const resourcesDir = path.join('knowledge', 'resources');
+          
+          if (fs.existsSync(blocksDir)) {
+            const yamlFiles = fs.readdirSync(blocksDir).filter(f => f.endsWith('.yaml') || f.endsWith('.yml'));
+            
+            yamlFiles.forEach(file => {
+              const content = fs.readFileSync(path.join(blocksDir, file), 'utf8');
+              
+              // Find all resource references (simple regex)
+              const resourceMatches = content.match(/['"]([^'"]+\.md)['"]/g);
+              
+              if (resourceMatches) {
+                resourceMatches.forEach(match => {
+                  const resourceName = match.replace(/['"]/g, '');
+                  const resourcePath = path.join(resourcesDir, resourceName);
+                  
+                  if (!fs.existsSync(resourcePath)) {
+                    console.error(`❌ Error in ${file}: Referenced resource '${resourceName}' not found`);
+                    hasErrors = true;
+                  }
+                });
+              }
+            });
+          }
+          
+          if (!hasErrors) {
+            console.log('✅ All resource references are valid');
+          }
+          
+          process.exit(hasErrors ? 1 : 0);
+          EOF
+          
+          node check-resources.js
+          
+      - name: Summary
+        if: always()
+        run: |
+          echo "📊 Validation Summary"
+          echo "===================="
+          if [ $? -eq 0 ]; then
+            echo "✅ All validations passed!"
+            echo "Your pull request is ready for review."
+          else
+            echo "❌ Validation failed!"
+            echo "Please fix the errors above before merging."
+          fi
