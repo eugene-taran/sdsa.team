@@ -1,20 +1,20 @@
 # CODEOWNERS for sdsa.team repository
 
 # Default owners for everything in the repo
-* @eugene-taran
+* @eugene-taran @anyaSychugina
 
 # Knowledge content requires review from maintainers
-/knowledge/ @eugene-taran @sdsa-team
+/knowledge/ @eugene-taran @anyaSychugina @sdsa-team
 
 # Specific ownership for critical files
-/knowledge/manifest.json @eugene-taran
-/knowledge/catalog.json @eugene-taran @sdsa-team
-/knowledge/authors.json @eugene-taran @sdsa-team
+/knowledge/manifest.json @eugene-taran @anyaSychugina
+/knowledge/catalog.json @eugene-taran @anyaSychugina @sdsa-team
+/knowledge/authors.json @eugene-taran @anyaSychugina @sdsa-team
 
 # Scripts and workflows need careful review
-/.github/workflows/ @eugene-taran
-/scripts/ @eugene-taran
+/.github/workflows/ @eugene-taran @anyaSychugina
+/scripts/ @eugene-taran @anyaSychugina
 
 # Documentation
-/docs/ @eugene-taran @sdsa-team
-*.md @sdsa-team
+/docs/ @eugene-taran @anyaSychugina @sdsa-team
+*.md @anyaSychugina @sdsa-team
