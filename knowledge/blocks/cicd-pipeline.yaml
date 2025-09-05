@@ -122,9 +122,11 @@ context_variables:
   - container_registry
   - pipeline_type
 
-# INTENTIONAL ERRORS:
-# 1. Missing metadata section (required)
-# 2. Wrong indentation (using tabs instead of spaces on this line)
-	wrong_indent: 'This line has tab indentation'
-# 3. Missing colon after key
-invalid_key 'Missing colon here'
+metadata:
+  author: 'test-contributor'
+  version: '1.0.0'
+  created: '2025-09-05'
+  last_updated: '2025-09-05'
+  estimated_time: '20 minutes'
+  difficulty: 'advanced'
+  tags: ['ci-cd', 'automation', 'deployment', 'devops']
