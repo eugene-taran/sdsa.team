@@ -26,16 +26,16 @@
       "comingSoon": true
     },
     {
-      "id": "ci-cd",
-      "title": "CI/CD Pipeline",
-      "description": "Build automated deployment pipelines",
+      "id": "cicd-pipeline",
+      "title": "CI/CD Pipeline Setup",
+      "description": "Configure continuous integration and deployment pipelines",
       "category": "devops",
       "difficulty": "advanced",
       "estimatedTime": "20 mins",
-      "blockId": "ci-cd",
+      "blockId": "cicd-pipeline",
       "icon": "🚀",
-      "tags": ["automation", "deployment", "devops"],
-      "comingSoon": true
+      "tags": ["automation", "deployment", "devops", "ci-cd"],
+      "comingSoon": false
     },
     {
       "id": "docker",

@@ -15,10 +15,18 @@
       "bio": "Official SDSA content team",
       "contributions": [],
       "joined": "2024-12-15"
+    },
+    "test-contributor": {
+      "name": "Test Contributor",
+      "github": "test-contributor",
+      "avatar": "https://github.com/test-contributor.png",
+      "bio": "CI/CD pipeline expert",
+      "contributions": ["cicd-pipeline"],
+      "joined": "2025-09-05"
     }
   },
   "stats": {
-    "totalAuthors": 2,
-    "totalContributions": 1
+    "totalAuthors": 3,
+    "totalContributions": 2
   }
 }
