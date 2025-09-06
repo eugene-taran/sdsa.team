@@ -1,7 +1,14 @@
-name: Validate Pull Request
+name: Validate Knowledge Content
 
 on:
   pull_request:
+    branches: [main]
+    paths:
+      - 'knowledge/**/*.yaml'
+      - 'knowledge/**/*.yml'
+      - 'knowledge/**/*.md'
+      - 'scripts/validate.js'
+  push:
     branches: [main]
     paths:
       - 'knowledge/**/*.yaml'
