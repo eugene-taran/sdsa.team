@@ -1,4 +1,4 @@
-name: Validate Knowledge Content
+name: Validate Contexts Content
 
 on:
   pull_request:
@@ -7,8 +7,8 @@ on:
     branches: [main]
 
 jobs:
-  validate-yaml:
-    name: Validate YAML Files
+  validate-json:
+    name: Validate JSON Files
     runs-on: ubuntu-latest
     
     steps:
@@ -20,30 +20,18 @@ jobs:
         with:
           node-version: '20'
           
-      - name: Validate all YAML files
+      - name: Validate all JSON files
         run: |
-          echo "🔍 Validating YAML files..."
+          echo "🔍 Validating JSON files..."
           node scripts/validate.js
           
       - name: Check for required files
         run: |
           echo "📋 Checking required files..."
           
-          # Check if manifest.json exists
-          if [ ! -f "knowledge/manifest.json" ]; then
-            echo "❌ Error: knowledge/manifest.json is missing"
-            exit 1
-          fi
-          
-          # Check if catalog.json exists
-          if [ ! -f "knowledge/catalog.json" ]; then
-            echo "❌ Error: knowledge/catalog.json is missing"
-            exit 1
-          fi
-          
-          # Check if authors.json exists
-          if [ ! -f "knowledge/authors.json" ]; then
-            echo "❌ Error: knowledge/authors.json is missing"
+          # Check if categories.json exists
+          if [ ! -f "contexts/categories.json" ]; then
+            echo "❌ Error: contexts/categories.json is missing"
             exit 1
           fi
           
@@ -53,19 +41,29 @@ jobs:
         run: |
           echo "👥 Checking author attribution..."
           
-          # Check if all YAML files have author metadata
-          for file in knowledge/blocks/*.yaml knowledge/blocks/*.yml; do
+          # Check if all JSON files have author metadata
+          for file in $(find contexts/categories -name '*.json' -not -name 'manifest.json'); do
             if [ -f "$file" ]; then
-              if ! grep -q "metadata:" "$file"; then
+              if ! jq -e '.metadata' "$file" > /dev/null 2>&1; then
                 echo "❌ Error: $file is missing metadata section"
                 exit 1
               fi
-              if ! grep -q "author:" "$file"; then
+              if ! jq -e '.metadata.author' "$file" > /dev/null 2>&1; then
                 echo "❌ Error: $file is missing author attribution"
                 exit 1
               fi
             fi
           done
+          
+          # Check that categories in categories.json have corresponding folders
+          if [ -f "contexts/categories.json" ]; then
+            for path in $(jq -r '.categories[].path' contexts/categories.json); do
+              if [ ! -d "contexts/categories/$path" ]; then
+                echo "❌ Error: Category path 'contexts/categories/$path' does not exist"
+                exit 1
+              fi
+            done
+          fi
           
           echo "✅ All files have author attribution"
           
@@ -80,15 +78,30 @@ jobs:
           
           let hasErrors = false;
           
-          // Get all YAML files
-          const blocksDir = path.join('knowledge', 'blocks');
-          const resourcesDir = path.join('knowledge', 'resources');
+          // Get all JSON files from categories
+          const categoriesDir = path.join('contexts', 'categories');
+          const resourcesDir = path.join('contexts', 'resources');
           
-          if (fs.existsSync(blocksDir)) {
-            const yamlFiles = fs.readdirSync(blocksDir).filter(f => f.endsWith('.yaml') || f.endsWith('.yml'));
-            
-            yamlFiles.forEach(file => {
-              const content = fs.readFileSync(path.join(blocksDir, file), 'utf8');
+          function walkDir(dir) {
+            let files = [];
+            if (fs.existsSync(dir)) {
+              fs.readdirSync(dir).forEach(item => {
+                const fullPath = path.join(dir, item);
+                const stat = fs.statSync(fullPath);
+                if (stat.isDirectory()) {
+                  files = files.concat(walkDir(fullPath));
+                } else if (item.endsWith('.json') && item !== 'manifest.json') {
+                  files.push(fullPath);
+                }
+              });
+            }
+            return files;
+          }
+          
+          const jsonFiles = walkDir(categoriesDir);
+          
+          jsonFiles.forEach(filepath => {
+            const content = fs.readFileSync(filepath, 'utf8');
               
               // Find all resource references (simple regex)
               const resourceMatches = content.match(/['"]([^'"]+\.md)['"]/g);

@@ -3,95 +3,91 @@
 const fs = require('fs');
 const path = require('path');
 
-// Simple YAML validator without external dependencies
-function validateYAML(content, filename) {
+// Simple JSON validator
+function validateJSON(content, filename) {
   const errors = [];
-  const lines = content.split('\n');
-  let currentIndent = 0;
-  let inMultilineString = false;
   
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const lineNum = i + 1;
-    
-    // Skip empty lines and comments
-    if (!line.trim() || line.trim().startsWith('#')) continue;
-    
-    // Check for tabs (YAML doesn't allow tabs for indentation)
-    if (line.includes('\t')) {
-      errors.push(`Line ${lineNum}: YAML files should not contain tabs`);
-    }
-    
-    // Check for improper indentation
-    const indent = line.match(/^(\s*)/)[1].length;
-    if (indent % 2 !== 0) {
-      errors.push(`Line ${lineNum}: Indentation should be in multiples of 2 spaces`);
-    }
-    
-    // Check for basic YAML structure
-    if (line.includes(':') && !line.includes(': ')) {
-      const colonIndex = line.indexOf(':');
-      if (colonIndex < line.length - 1 && line[colonIndex + 1] !== ' ' && line[colonIndex + 1] !== '\n') {
-        errors.push(`Line ${lineNum}: Space required after colon`);
-      }
-    }
-    
-    // Check for unclosed quotes (skip this check for lines with apostrophes in words)
-    // Only check if line starts/ends with quotes or has quotes around values
-    const trimmedLine = line.trim();
-    if (trimmedLine.startsWith("'") || trimmedLine.endsWith("'") || 
-        trimmedLine.startsWith('"') || trimmedLine.endsWith('"')) {
-      const singleQuotes = (line.match(/'/g) || []).length;
-      const doubleQuotes = (line.match(/"/g) || []).length;
-      
-      // For single quotes, only check if they appear to be string delimiters
-      if (trimmedLine.startsWith("'") && singleQuotes % 2 !== 0) {
-        errors.push(`Line ${lineNum}: Unclosed single quote`);
-      }
-      if (trimmedLine.startsWith('"') && doubleQuotes % 2 !== 0) {
-        errors.push(`Line ${lineNum}: Unclosed double quote`);
-      }
-    }
+  // Try to parse JSON
+  let json;
+  try {
+    json = JSON.parse(content);
+  } catch (e) {
+    errors.push(`Invalid JSON: ${e.message}`);
+    return errors;
   }
   
-  // Check required fields for knowledge blocks
-  if (filename.includes('blocks/')) {
-    if (!content.includes('id:')) {
+  // Check if it's the categories metadata file
+  if (filename.includes('categories.json')) {
+    if (!json.categories || !Array.isArray(json.categories)) {
+      errors.push('Missing or invalid required field in categories.json: categories (must be an array)');
+    } else {
+      json.categories.forEach((cat, index) => {
+        if (!cat.id) errors.push(`Category at index ${index} missing required field: id`);
+        if (!cat.name) errors.push(`Category at index ${index} missing required field: name`);
+        if (!cat.description) errors.push(`Category at index ${index} missing required field: description`);
+        if (!cat.path) errors.push(`Category at index ${index} missing required field: path`);
+      });
+    }
+  }
+  // Check required fields for topic questionnaires
+  else if (filename.includes('categories/') && !filename.includes('manifest.json') && !filename.includes('categories.json')) {
+    if (!json.id) {
       errors.push('Missing required field: id');
     }
-    if (!content.includes('title:')) {
+    if (!json.title) {
       errors.push('Missing required field: title');
     }
-    if (!content.includes('initial_question:')) {
-      errors.push('Missing required field: initial_question');
+    if (!json.questions || !Array.isArray(json.questions)) {
+      errors.push('Missing or invalid required field: questions (must be an array)');
     }
-    if (!content.includes('paths:')) {
-      errors.push('Missing required field: paths');
+    if (!json.llmConfig) {
+      errors.push('Missing required field: llmConfig');
     }
-    if (!content.includes('metadata:')) {
-      errors.push('Missing required field: metadata');
+    
+    // Check that ID matches filename
+    const expectedId = path.basename(filename, '.json');
+    if (json.id && json.id !== expectedId && !filename.includes('categories.json')) {
+      errors.push(`ID mismatch: expected "${expectedId}" but found "${json.id}"`);
     }
   }
   
   return errors;
 }
 
-// Get all YAML files in knowledge directory
-function getAllYamlFiles() {
+// Get all JSON files in contexts directory
+function getAllJsonFiles() {
   const files = [];
-  const knowledgeDir = path.resolve(__dirname, '..', 'knowledge');
+  const contextsDir = path.resolve(__dirname, '..', 'contexts');
   
-  // Get files from blocks directory
-  const blocksDir = path.join(knowledgeDir, 'blocks');
-  if (fs.existsSync(blocksDir)) {
-    fs.readdirSync(blocksDir).forEach(file => {
-      if (file.endsWith('.yaml') || file.endsWith('.yml')) {
-        files.push(path.join('knowledge', 'blocks', file));
+  // Add categories.json if it exists
+  const categoriesJsonPath = path.join(contextsDir, 'categories.json');
+  if (fs.existsSync(categoriesJsonPath)) {
+    files.push(path.join('contexts', 'categories.json'));
+  }
+  
+  // Recursively find all JSON files in categories
+  function walkDir(dir, baseDir = '') {
+    if (!fs.existsSync(dir)) return;
+    
+    const items = fs.readdirSync(dir);
+    items.forEach(item => {
+      const fullPath = path.join(dir, item);
+      const relativePath = baseDir ? path.join(baseDir, item) : item;
+      const stat = fs.statSync(fullPath);
+      
+      if (stat.isDirectory()) {
+        walkDir(fullPath, relativePath);
+      } else if (item.endsWith('.json') && item !== 'manifest.json' && item !== 'categories.json') {
+        files.push(path.join('contexts', relativePath));
       }
     });
   }
   
-  // Could add other directories here if needed
+  // Walk through categories directory
+  const categoriesDir = path.join(contextsDir, 'categories');
+  if (fs.existsSync(categoriesDir)) {
+    walkDir(categoriesDir, 'categories');
+  }
   
   return files;
 }
@@ -109,7 +105,7 @@ function validateFile(filename) {
   }
   
   const content = fs.readFileSync(filepath, 'utf8');
-  const errors = validateYAML(content, filename);
+  const errors = validateJSON(content, filename);
   
   return {
     filename,
@@ -125,12 +121,12 @@ function main() {
   
   if (args.length === 0) {
     // No arguments - validate all files
-    filesToValidate = getAllYamlFiles();
+    filesToValidate = getAllJsonFiles();
     if (filesToValidate.length === 0) {
-      console.log('No YAML files found in knowledge/blocks/');
+      console.log('No JSON files found in contexts/categories/');
       process.exit(0);
     }
-    console.log(`Validating ${filesToValidate.length} YAML file(s)...\n`);
+    console.log(`Validating ${filesToValidate.length} JSON file(s)...\n`);
   } else {
     // Validate specific file
     filesToValidate = [args[0]];

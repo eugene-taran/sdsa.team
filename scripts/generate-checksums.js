@@ -2,25 +2,53 @@
 
 /**
  * Checksum Generation Script
- * Generates SHA-256 checksums for all knowledge content files
- * Updates manifest.json with checksums and file sizes
+ * Generates a single SHA-256 checksum for the entire contexts folder
+ * Creates or updates manifest.json in the release pipeline
  */
 
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-const KNOWLEDGE_DIR = path.join(__dirname, '..', 'knowledge');
-const MANIFEST_PATH = path.join(KNOWLEDGE_DIR, 'manifest.json');
+const CONTEXTS_DIR = path.join(__dirname, '..', 'contexts');
 
-function getFileChecksum(filePath) {
-  const content = fs.readFileSync(filePath);
-  return crypto.createHash('sha256').update(content).digest('hex');
-}
-
-function getFileSize(filePath) {
-  const stats = fs.statSync(filePath);
-  return stats.size;
+function getDirectoryChecksum(dir, excludeFiles = ['manifest.json', '.DS_Store']) {
+  const hash = crypto.createHash('sha256');
+  const files = [];
+  
+  function walk(currentDir, prefix = '') {
+    const items = fs.readdirSync(currentDir).sort();
+    
+    items.forEach(item => {
+      if (excludeFiles.includes(item)) return;
+      
+      const fullPath = path.join(currentDir, item);
+      const relativePath = prefix ? path.join(prefix, item) : item;
+      const stat = fs.statSync(fullPath);
+      
+      if (stat.isDirectory()) {
+        walk(fullPath, relativePath);
+      } else {
+        const content = fs.readFileSync(fullPath);
+        // Include file path and content in hash for consistency
+        hash.update(relativePath);
+        hash.update(content);
+        files.push({
+          path: relativePath,
+          size: stat.size
+        });
+      }
+    });
+  }
+  
+  walk(dir);
+  
+  return {
+    checksum: hash.digest('hex'),
+    files: files,
+    totalSize: files.reduce((sum, file) => sum + file.size, 0),
+    fileCount: files.length
+  };
 }
 
 function formatSize(bytes) {
@@ -29,172 +57,112 @@ function formatSize(bytes) {
   return Math.round(bytes / (1024 * 1024)) + 'MB';
 }
 
-function scanDirectory(dir, basePath = '', excludeFiles = ['manifest.json']) {
-  const results = {
-    checksums: {},
-    files: [],
-    totalSize: 0,
-    fileCount: 0
-  };
-  
-  function walk(currentDir, prefix = '') {
-    const files = fs.readdirSync(currentDir);
-    
-    files.forEach(file => {
-      const fullPath = path.join(currentDir, file);
-      const relativePath = prefix ? path.join(prefix, file) : file;
-      const stat = fs.statSync(fullPath);
-      
-      if (stat.isDirectory()) {
-        walk(fullPath, relativePath);
-      } else if (!excludeFiles.includes(file)) {
-        const checksum = getFileChecksum(fullPath);
-        const size = getFileSize(fullPath);
-        
-        results.checksums[relativePath] = `sha256:${checksum}`;
-        results.files.push({
-          path: relativePath,
-          checksum: checksum,
-          size: size
-        });
-        results.totalSize += size;
-        results.fileCount++;
-      }
-    });
+function countCategories() {
+  const categoriesPath = path.join(CONTEXTS_DIR, 'categories.json');
+  if (fs.existsSync(categoriesPath)) {
+    const content = JSON.parse(fs.readFileSync(categoriesPath, 'utf8'));
+    return content.categories ? content.categories.length : 0;
   }
-  
-  walk(dir, basePath);
-  return results;
+  return 0;
 }
 
-function categorizeFiles(files) {
-  const categories = {
-    blocks: [],
-    resources: [],
-    other: []
-  };
+function countTopics() {
+  let count = 0;
+  const categoriesDir = path.join(CONTEXTS_DIR, 'categories');
   
-  files.forEach(file => {
-    if (file.path.startsWith('blocks/')) {
-      categories.blocks.push(file);
-    } else if (file.path.startsWith('resources/')) {
-      categories.resources.push(file);
-    } else {
-      categories.other.push(file);
+  if (fs.existsSync(categoriesDir)) {
+    function walk(dir) {
+      const items = fs.readdirSync(dir);
+      items.forEach(item => {
+        const fullPath = path.join(dir, item);
+        const stat = fs.statSync(fullPath);
+        if (stat.isDirectory()) {
+          walk(fullPath);
+        } else if (item.endsWith('.json')) {
+          count++;
+        }
+      });
     }
-  });
+    walk(categoriesDir);
+  }
   
-  return categories;
+  return count;
 }
 
-function updateManifest(results) {
-  let manifest;
-  
-  if (fs.existsSync(MANIFEST_PATH)) {
-    manifest = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf8'));
-  } else {
-    manifest = {
-      version: '0.0.0',
-      released: new Date().toISOString()
-    };
-  }
-  
-  // Update checksums and size
-  manifest.checksums = results.checksums;
-  manifest.size = formatSize(results.totalSize);
-  
-  // Update statistics
-  const categories = categorizeFiles(results.files);
-  manifest.statistics = {
-    totalFiles: results.fileCount,
-    totalSize: formatSize(results.totalSize),
-    blocks: categories.blocks.length,
-    resources: categories.resources.length,
-    lastUpdated: new Date().toISOString()
-  };
-  
-  // Update individual block info
-  if (!manifest.blocks) {
-    manifest.blocks = {};
-  }
-  
-  categories.blocks.forEach(block => {
-    const blockName = path.basename(block.path, '.yaml');
-    if (!manifest.blocks[blockName]) {
-      manifest.blocks[blockName] = {};
+function generateManifest(checksum, totalSize, fileCount) {
+  const manifest = {
+    version: process.env.VERSION || '0.0.0',
+    released: new Date().toISOString(),
+    checksum: `sha256:${checksum}`,
+    size: formatSize(totalSize),
+    statistics: {
+      totalFiles: fileCount,
+      totalSize: formatSize(totalSize),
+      categories: countCategories(),
+      topics: countTopics(),
+      lastUpdated: new Date().toISOString()
     }
-    manifest.blocks[blockName].checksum = block.checksum;
-    manifest.blocks[blockName].size = formatSize(block.size);
-  });
-  
-  fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2));
+  };
   
   return manifest;
 }
 
-function printReport(results, manifest) {
-  console.log('📊 SDSA Knowledge Checksum Report');
+function printReport(result, manifest) {
+  console.log('📊 SDSA Contexts Checksum Report');
   console.log('==================================');
-  console.log(`📁 Total files: ${results.fileCount}`);
-  console.log(`💾 Total size: ${formatSize(results.totalSize)}`);
+  console.log(`📁 Total files: ${result.fileCount}`);
+  console.log(`💾 Total size: ${formatSize(result.totalSize)}`);
+  console.log(`🔐 Checksum: ${result.checksum.substring(0, 16)}...`);
   console.log('');
   
-  const categories = categorizeFiles(results.files);
-  
-  if (categories.blocks.length > 0) {
-    console.log('📚 Knowledge Blocks:');
-    categories.blocks.forEach(file => {
-      console.log(`  ✓ ${file.path} (${formatSize(file.size)})`);
-      console.log(`    └─ ${file.checksum.substring(0, 16)}...`);
-    });
+  if (manifest) {
+    console.log('📋 Manifest:');
+    console.log(`  Version: ${manifest.version}`);
+    console.log(`  Categories: ${manifest.statistics.categories}`);
+    console.log(`  Topics: ${manifest.statistics.topics}`);
     console.log('');
   }
   
-  if (categories.resources.length > 0) {
-    console.log('📄 Resources:');
-    categories.resources.forEach(file => {
-      console.log(`  ✓ ${file.path} (${formatSize(file.size)})`);
-    });
-    console.log('');
-  }
-  
-  if (categories.other.length > 0) {
-    console.log('📎 Other Files:');
-    categories.other.forEach(file => {
-      console.log(`  ✓ ${file.path} (${formatSize(file.size)})`);
-    });
-    console.log('');
-  }
-  
-  console.log('✅ Checksums generated and saved to manifest.json');
+  console.log('✅ Checksum generated successfully');
 }
 
 // Main execution
 function main() {
   const args = process.argv.slice(2);
   
-  console.log('🔐 Generating checksums for knowledge content...\n');
+  console.log('🔐 Generating checksum for contexts folder...\n');
   
   try {
-    const results = scanDirectory(KNOWLEDGE_DIR, '', ['manifest.json']);
+    const result = getDirectoryChecksum(CONTEXTS_DIR);
     
-    if (results.fileCount === 0) {
+    if (result.fileCount === 0) {
       console.log('⚠️  No files found to checksum');
       return;
     }
     
+    const manifest = generateManifest(result.checksum, result.totalSize, result.fileCount);
+    
     if (args.includes('--dry-run')) {
       console.log('🔍 Dry run mode - no changes made\n');
-      printReport(results, null);
+      printReport(result, manifest);
+    } else if (args.includes('--save-manifest')) {
+      // Save manifest.json (for release pipeline)
+      const manifestPath = path.join(CONTEXTS_DIR, 'manifest.json');
+      fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+      printReport(result, manifest);
+      console.log('📄 Manifest saved to contexts/manifest.json');
     } else {
-      const manifest = updateManifest(results);
-      printReport(results, manifest);
+      printReport(result, manifest);
     }
     
     // Output JSON for GitHub Actions
     if (args.includes('--json')) {
       console.log('\n📋 JSON Output:');
-      console.log(JSON.stringify(results.checksums, null, 2));
+      console.log(JSON.stringify({
+        checksum: result.checksum,
+        totalSize: result.totalSize,
+        fileCount: result.fileCount
+      }, null, 2));
     }
     
   } catch (error) {
@@ -207,4 +175,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { getFileChecksum, scanDirectory, updateManifest };
+module.exports = { getDirectoryChecksum, generateManifest };

@@ -2,7 +2,8 @@
 
 [![Release](https://img.shields.io/github/v/release/eugene-taran/sdsa.team)](https://github.com/eugene-taran/sdsa.team/releases/latest)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Topics](https://img.shields.io/badge/questionnaires-2-green)](contexts/topics)
+[![Categories](https://img.shields.io/badge/categories-2-blue)](contexts/categories)
+[![Topics](https://img.shields.io/badge/questionnaires-2-green)](contexts/categories)
 [![Contributors](https://img.shields.io/badge/contributors-welcome-brightgreen)](CLAUDE.md#contributing)
 
 Open-source questionnaire repository for **SDSA (Software Development Smart Assist)** - AI-powered development assistance through context-aware conversations.
@@ -21,10 +22,12 @@ SDSA is a cross-platform application (iOS, Android, Web) that provides personali
 
 ```
 contexts/
-├── manifest.json         # Version and checksums
-└── topics/              # Questionnaire JSON files
-    ├── e2e-testing.json
-    ├── cicd-pipeline.json
+├── categories.json      # All category metadata
+└── categories/          # Category folders
+    ├── cicd/            # CI/CD & DevOps
+    │   └── cicd-pipeline.json
+    ├── e2e/             # Testing & Quality
+    │   └── e2e-testing.json
     └── ...
 ```
 
@@ -35,7 +38,36 @@ contexts/
 3. **Get AI assistance** - Receive personalized recommendations via chat
 4. **Continue conversation** - Ask follow-up questions with full context
 
-## 📝 Questionnaire Format
+## 📝 File Formats
+
+### Categories Metadata (categories.json)
+
+All categories are defined in a single `contexts/categories.json` file:
+
+```json
+{
+  "categories": [
+    {
+      "id": "cicd",
+      "name": "CI/CD & DevOps",
+      "description": "Continuous Integration, Continuous Deployment, and DevOps practices",
+      "icon": "🚀",
+      "path": "cicd",
+      "order": 1
+    },
+    {
+      "id": "e2e",
+      "name": "Testing & Quality",
+      "description": "Testing strategies, frameworks, and quality assurance",
+      "icon": "🧪",
+      "path": "e2e",
+      "order": 2
+    }
+  ]
+}
+```
+
+### Questionnaire Format
 
 Questionnaires use JSON. The `id` should match the filename (e.g., file `e2e-testing.json` has `id: "e2e-testing"`). Metadata is optional and currently only contains the author field:
 
@@ -46,7 +78,6 @@ Questionnaires use JSON. The `id` should match the filename (e.g., file `e2e-tes
   "description": "What this helps with",
   "questions": [
     {
-      "id": "q1",
       "type": "radio",
       "label": "Your question?",
       "options": [
@@ -87,7 +118,6 @@ Questionnaires use JSON. The `id` should match the filename (e.g., file `e2e-tes
   "description": "Get personalized CI/CD setup recommendations",
   "questions": [
     {
-      "id": "platform",
       "type": "radio",
       "label": "Which CI/CD platform are you using?",
       "options": [
@@ -103,7 +133,6 @@ Questionnaires use JSON. The `id` should match the filename (e.g., file `e2e-tes
       ]
     },
     {
-      "id": "projectType",
       "type": "checkbox",
       "label": "What type of projects will you build?",
       "options": [
@@ -114,7 +143,6 @@ Questionnaires use JSON. The `id` should match the filename (e.g., file `e2e-tes
       ]
     },
     {
-      "id": "deploymentTarget",
       "type": "radio",
       "label": "Where will you deploy?",
       "options": [
@@ -125,13 +153,11 @@ Questionnaires use JSON. The `id` should match the filename (e.g., file `e2e-tes
       ]
     },
     {
-      "id": "teamSize",
       "type": "text",
       "label": "How many developers on your team?",
       "placeholder": "Enter number"
     },
     {
-      "id": "hasTests",
       "type": "radio",
       "label": "Do you have automated tests?",
       "options": [
@@ -140,7 +166,6 @@ Questionnaires use JSON. The `id` should match the filename (e.g., file `e2e-tes
       ]
     },
     {
-      "id": "testTypes",
       "type": "checkbox",
       "label": "Which test types?",
       "options": [
@@ -151,7 +176,6 @@ Questionnaires use JSON. The `id` should match the filename (e.g., file `e2e-tes
       ]
     },
     {
-      "id": "requirements",
       "type": "textarea",
       "label": "Any specific requirements or constraints?",
       "placeholder": "E.g., must comply with SOC2, need blue-green deployments...",
@@ -178,8 +202,14 @@ We welcome contributions! Add your expertise:
 1. **Fork** this repository
 2. **Create** your questionnaire:
 ```bash
-# Create new questionnaire file
-touch contexts/topics/your-topic.json
+# Create a new category folder (if needed)
+mkdir -p contexts/categories/your-category
+
+# Add your category to contexts/categories.json
+# Edit the file to add your category metadata
+
+# Create your questionnaire file
+touch contexts/categories/your-category/your-topic.json
 ```
 3. **Add** your questions following the format above
 4. **Submit** a pull request
@@ -213,7 +243,7 @@ touch contexts/topics/your-topic.json
 
 - Questionnaires are versioned individually
 - The repository uses date-based releases: `YYYY.MM.DD.PATCH`
-- Apps can cache and check for updates via `manifest.json`
+- Manifest.json is auto-generated during releases with content checksum
 
 ## 📄 License
 
