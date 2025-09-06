@@ -1,8 +1,8 @@
-# SDSA Knowledge Repository
+# SDSA Contexts Repository
 
 [![Release](https://img.shields.io/github/v/release/eugene-taran/sdsa.team)](https://github.com/eugene-taran/sdsa.team/releases/latest)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Knowledge Blocks](https://img.shields.io/badge/questionnaires-2-green)](knowledge/blocks)
+[![Topics](https://img.shields.io/badge/questionnaires-2-green)](contexts/topics)
 [![Contributors](https://img.shields.io/badge/contributors-welcome-brightgreen)](CLAUDE.md#contributing)
 
 Open-source questionnaire repository for **SDSA (Software Development Smart Assist)** - AI-powered development assistance through context-aware conversations.
@@ -15,13 +15,14 @@ SDSA is a cross-platform application (iOS, Android, Web) that provides personali
 - **AI-Powered Chat** - Provides tailored recommendations based on your answers
 - **Privacy-First** - Your conversations stay private, questionnaires are open-source
 - **Offline Support** - Cached questionnaires work without internet
+- **On-device LLMs** - one of the first priorities on the roadmap
 
 ## 📚 Repository Structure
 
 ```
-knowledge/
+contexts/
 ├── manifest.json         # Version and checksums
-└── blocks/              # Questionnaire JSON files
+└── topics/              # Questionnaire JSON files
     ├── e2e-testing.json
     ├── cicd-pipeline.json
     └── ...
@@ -36,7 +37,7 @@ knowledge/
 
 ## 📝 Questionnaire Format
 
-Questionnaires use JSON with react-hook-form compatible structure. The `id` should match the filename (e.g., file `e2e-testing.json` has `id: "e2e-testing"`). Metadata is optional and currently only contains the author field:
+Questionnaires use JSON. The `id` should match the filename (e.g., file `e2e-testing.json` has `id: "e2e-testing"`). Metadata is optional and currently only contains the author field:
 
 ```json
 {
@@ -178,7 +179,7 @@ We welcome contributions! Add your expertise:
 2. **Create** your questionnaire:
 ```bash
 # Create new questionnaire file
-touch knowledge/blocks/your-topic.json
+touch contexts/topics/your-topic.json
 ```
 3. **Add** your questions following the format above
 4. **Submit** a pull request

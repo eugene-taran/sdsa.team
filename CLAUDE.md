@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is the public knowledge repository for SDSA (Software Development Smart Assist). It contains JSON questionnaires that collect context from users to provide personalized AI-powered recommendations.
+This is the public contexts repository for SDSA (Software Development Smart Assist). It contains JSON questionnaires that collect context from users to provide personalized AI-powered recommendations.
 
 ## Purpose
 
@@ -208,10 +208,9 @@ The `id` field should match the filename without extension (e.g., file `e2e-test
 ### Key Concepts
 
 1. **ID Format**: Use kebab-case like filename (e.g., "cicd-setup", "e2e-testing")
-2. **Questions Array**: All questions in a flat array with unique IDs
+2. **Questions Array**: All questions in a flat array
 3. **Four Input Types**: text, textarea, radio, checkbox
 4. **Text Input Options**: Any option can have `hasTextInput: true` for custom values
-5. **Validation**: Optional validation rules (maxLength, minLength, patterns)
 6. **LLM Configuration**: Settings for AI chat responses
 7. **Metadata**: Optional, currently only contains author field
 
@@ -313,7 +312,6 @@ Good topics for questionnaires:
 - Best practices and patterns
 - Troubleshooting guides
 
-
 ## Testing Your Content
 
 ### Pre-Commit Validation
@@ -334,7 +332,7 @@ cd sdsa.team
 2. **Validate structure**:
 ```bash
 # Check JSON validity
-node scripts/validate.js contexts/blocks/your-topic.json
+node scripts/validate.js contexts/topics/your-topic.json
 ```
 
 3. **Verify structure**:
@@ -352,9 +350,7 @@ The PR will be blocked from merging if any validation fails. You'll see:
 - ❌ Red X if any validation fails (with details in the logs)
 
 Manual review will check:
-- Content quality and accuracy
-- Appropriate difficulty level
-- Clear and helpful resources
+- Relevancy of questions to the appropriate context
 
 ## Community
 
@@ -369,7 +365,6 @@ Manual review will check:
 - Be respectful and inclusive
 - Provide constructive feedback
 - Help others learn and grow
-- Attribute sources properly
 
 ## Licensing
 
@@ -385,10 +380,6 @@ All contexts content is available under [MIT License](LICENSE):
 By contributing, you agree that:
 - You grant MIT license for your contributions
 
-## Roadmap
-
-- 
-
 ### Current Features
 - ✅ Questionnaire system
 - ✅ LLM integration configuration
@@ -396,25 +387,8 @@ By contributing, you agree that:
 - ✅ Automated releases
 - ✅ Version management
 
-## Maintenance
-
-### Regular Tasks
-
-- **Weekly**: Review and merge PRs
-- **Monthly**: Update popular topics
-- **Quarterly**: Audit content quality
-- **Yearly**: Major structure updates
-
-### Deprecation Process
-
-When content becomes outdated:
-1. Mark as deprecated in metadata
-2. Add migration guide
-3. Maintain for 6 months
-4. Archive or remove
-
 ## Contact
 
 - **Repository**: [github.com/eugene-taran/sdsa.team](https://github.com/eugene-taran/sdsa.team)
 - **Maintainer**: Eugene Taran (@eugene-taran)
-- always remember that we are building questionaires
+- always remember that we are building contexts
