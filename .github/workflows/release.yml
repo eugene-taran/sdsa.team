@@ -16,10 +16,18 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+      
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -109,8 +117,8 @@ jobs:
       
       - name: Commit manifest updates
         run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
+          git config user.name "sdsa-release-bot[bot]"
+          git config user.email "sdsa-release-bot[bot]@users.noreply.github.com"
           git add knowledge/manifest.json
           git diff --cached --quiet || git commit -m "chore: update manifest for v${{ steps.version.outputs.version }} [skip ci]"
           git push origin main
