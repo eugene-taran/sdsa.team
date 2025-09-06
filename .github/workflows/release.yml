@@ -112,7 +112,7 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add knowledge/manifest.json
-          git diff --cached --quiet || git commit -m "chore: update manifest for v${{ steps.version.outputs.version }}"
+          git diff --cached --quiet || git commit -m "chore: update manifest for v${{ steps.version.outputs.version }} [skip ci]"
           git push origin main
       
       - name: Create release bundles
