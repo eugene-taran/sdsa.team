@@ -27,12 +27,12 @@ This repository contains:
 
 ## 🎯 Current Knowledge Blocks
 
+> **Note**: These knowledge blocks are currently stubs - they guide you through decision trees and connect you with AI assistance for detailed implementation help.
+
 | Topic | Description | Difficulty | Time |
 |-------|-------------|------------|------|
 | [E2E Testing](knowledge/blocks/e2e-testing.yaml) | Complete testing setup guide | Intermediate | 10 mins |
-| React Setup | Project configuration guide | Beginner | 15 mins |
-| CI/CD Pipeline | Automation setup | Advanced | 20 mins |
-| Docker | Containerization guide | Intermediate | 15 mins |
+| [CI/CD Pipeline](knowledge/blocks/cicd-pipeline.yaml) | Automation setup | Advanced | 20 mins |
 
 *More coming soon! [Contribute your own →](CLAUDE.md#contributing)*
 
