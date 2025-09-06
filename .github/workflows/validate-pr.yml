@@ -101,7 +101,8 @@ jobs:
           const jsonFiles = walkDir(categoriesDir);
           
           jsonFiles.forEach(filepath => {
-            const content = fs.readFileSync(filepath, 'utf8');
+            try {
+              const content = fs.readFileSync(filepath, 'utf8');
               
               // Find all resource references (simple regex)
               const resourceMatches = content.match(/['"]([^'"]+\.md)['"]/g);
@@ -112,13 +113,16 @@ jobs:
                   const resourcePath = path.join(resourcesDir, resourceName);
                   
                   if (!fs.existsSync(resourcePath)) {
-                    console.error(`❌ Error in ${file}: Referenced resource '${resourceName}' not found`);
+                    console.error(`❌ Error in ${filepath}: Referenced resource '${resourceName}' not found`);
                     hasErrors = true;
                   }
                 });
               }
-            });
-          }
+            } catch (e) {
+              console.error(`❌ Error reading ${filepath}: ${e.message}`);
+              hasErrors = true;
+            }
+          });
           
           if (!hasErrors) {
             console.log('✅ All resource references are valid');
