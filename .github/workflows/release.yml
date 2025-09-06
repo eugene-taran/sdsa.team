@@ -120,7 +120,7 @@ jobs:
           git config user.name "sdsa-release-bot[bot]"
           git config user.email "sdsa-release-bot[bot]@users.noreply.github.com"
           git add knowledge/manifest.json
-          git diff --cached --quiet || git commit -m "chore: update manifest for v${{ steps.version.outputs.version }} [skip ci]"
+          git diff --cached --quiet || git commit -m "chore: update manifest for v${{ steps.version.outputs.version }}"
           git push origin main
       
       - name: Create release bundles
