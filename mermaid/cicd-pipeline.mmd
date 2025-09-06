@@ -1,0 +1,51 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#e1f5fe', 'primaryBorderColor': '#01579b', 'fontFamily': 'Arial', 'fontSize': '14px'}}}%%
+graph TD
+    Start([CI/CD Pipeline Setup])
+    Start --> Q1{What platform are<br/>you using for CI/CD?}
+    
+    %% GitHub Actions Path
+    Q1 -->|GitHub Actions| GA_Q1{What type of project<br/>are you deploying?}
+    
+    GA_Q1 -->|Node App| GA_Node_Q{Which cloud provider?}
+    GA_Node_Q -->|AWS| GA_Node_AWS[✅ AWS deployment configured<br/>AI helps with IAM and EC2/ECS]
+    GA_Node_Q -->|Vercel| GA_Node_Vercel[✅ Vercel auto-deploy ready<br/>AI helps with env vars]
+    GA_Node_Q -->|Heroku| GA_Node_Heroku[✅ Heroku pipeline ready<br/>AI helps with buildpacks]
+    
+    GA_Q1 -->|Docker Container| GA_Docker_Q{Where to host images?}
+    GA_Docker_Q -->|Docker Hub| GA_Docker_Hub[✅ Docker Hub builds ready<br/>AI helps with multi-arch]
+    GA_Docker_Q -->|GitHub Registry| GA_Docker_GH[✅ GHCR configured<br/>AI helps with permissions]
+    GA_Docker_Q -->|AWS ECR| GA_Docker_ECR[✅ ECR repository ready<br/>AI helps with lifecycle rules]
+    
+    GA_Q1 -->|Static Site| GA_Static_Q{Which hosting service?}
+    GA_Static_Q -->|GitHub Pages| GA_Static_Pages[✅ Pages workflow ready<br/>AI helps with custom domains]
+    GA_Static_Q -->|Netlify| GA_Static_Netlify[✅ Netlify CD configured<br/>AI helps with build plugins]
+    GA_Static_Q -->|S3 + CloudFront| GA_Static_S3[✅ S3/CloudFront ready<br/>AI helps with caching]
+    
+    %% Jenkins Path
+    Q1 -->|Jenkins| J_Q1{What type of<br/>Jenkins setup?}
+    
+    J_Q1 -->|Pipeline as Code| J_Pipeline_Q{Which syntax?}
+    J_Pipeline_Q -->|Declarative| J_Declarative[✅ Declarative pipeline ready<br/>AI helps with stages and agents]
+    J_Pipeline_Q -->|Scripted| J_Scripted[✅ Scripted pipeline ready<br/>AI helps with Groovy syntax]
+    
+    J_Q1 -->|Freestyle Project| J_Freestyle[✅ Freestyle configured<br/>AI helps with build steps]
+    
+    %% GitLab CI Path
+    Q1 -->|GitLab CI| GL_Q1{What deployment<br/>strategy?}
+    
+    GL_Q1 -->|Auto DevOps| GL_Auto[✅ Auto DevOps enabled<br/>AI helps with customization]
+    
+    GL_Q1 -->|Custom Pipeline| GL_Custom_Q{Environment setup?}
+    GL_Custom_Q -->|Single Env| GL_Single[✅ Single env configured<br/>AI helps with artifacts]
+    GL_Custom_Q -->|Multi Env| GL_Multi[✅ Multi-env ready<br/>AI helps with stage gates]
+    
+    %% Styling
+    classDef startEnd fill:#e8f5e9,stroke:#2e7d32,stroke-width:3px
+    classDef question fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef complete fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    
+    class Start startEnd
+    class Q1,GA_Q1,GA_Node_Q,GA_Docker_Q,GA_Static_Q,J_Q1,J_Pipeline_Q,GL_Q1,GL_Custom_Q question
+    class GA_Node_AWS,GA_Node_Vercel,GA_Node_Heroku,GA_Docker_Hub,GA_Docker_GH,GA_Docker_ECR complete
+    class GA_Static_Pages,GA_Static_Netlify,GA_Static_S3,J_Declarative,J_Scripted,J_Freestyle complete
+    class GL_Auto,GL_Single,GL_Multi complete

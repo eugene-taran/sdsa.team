@@ -1,0 +1,54 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#e8f5e9', 'primaryBorderColor': '#2e7d32', 'fontFamily': 'Arial', 'fontSize': '14px'}}}%%
+graph TD
+    Start([E2E Testing Setup])
+    Start --> Q1{Do you have an existing<br/>test system in place?}
+    
+    %% Existing System Path
+    Q1 -->|Yes| E_Q1{Which testing framework<br/>are you currently using?}
+    
+    %% Cypress Path
+    E_Q1 -->|Cypress| Cyp_Q{What version of<br/>Cypress are you using?}
+    Cyp_Q -->|v13+| Cyp_Modern[✅ Latest Cypress ready<br/>AI helps with component testing]
+    Cyp_Q -->|v12| Cyp_Old[⚠️ Consider upgrading<br/>AI helps with migration]
+    Cyp_Q -->|Older| Cyp_Legacy[❗ Critical upgrade needed<br/>AI helps plan safe upgrade]
+    
+    %% Playwright Path
+    E_Q1 -->|Playwright| PW_Q{Are you running<br/>tests in parallel?}
+    PW_Q -->|Yes| PW_Parallel[✅ Great setup!<br/>AI helps optimize sharding]
+    PW_Q -->|No| PW_Serial[💡 Enable parallel execution<br/>AI helps with workers config]
+    
+    %% Selenium Path
+    E_Q1 -->|Selenium| E_Selenium[⚠️ Consider Playwright<br/>AI helps with migration]
+    
+    %% Other Framework
+    E_Q1 -->|Other| E_Other[💡 Framework comparison<br/>AI recommends best choice]
+    
+    %% No System Path
+    Q1 -->|No| N_Q1{What's your primary<br/>application type?}
+    
+    %% Web Applications
+    N_Q1 -->|Web| Web_Q{What frontend<br/>framework?}
+    Web_Q -->|React| Web_React[✅ Playwright + React<br/>AI helps with Testing Library]
+    Web_Q -->|Vue| Web_Vue[✅ Vue testing ready<br/>AI helps with Vitest setup]
+    Web_Q -->|Angular| Web_Angular[✅ Migrate from Protractor<br/>AI helps with selectors]
+    Web_Q -->|Other| Web_Other[✅ Simple E2E setup<br/>AI recommends best tools]
+    
+    %% Mobile Applications
+    N_Q1 -->|Mobile| N_Mobile[📱 Mobile testing tools<br/>AI helps with Detox/Appium]
+    
+    %% Desktop Applications
+    N_Q1 -->|Desktop| N_Desktop[🖥️ Desktop testing<br/>AI helps with Electron/Spectron]
+    
+    %% Styling
+    classDef startEnd fill:#e8f5e9,stroke:#2e7d32,stroke-width:3px
+    classDef question fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef complete fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef warning fill:#fff9c4,stroke:#f57c00,stroke-width:2px
+    classDef critical fill:#ffebee,stroke:#c62828,stroke-width:2px
+    
+    class Start startEnd
+    class Q1,E_Q1,Cyp_Q,PW_Q,N_Q1,Web_Q question
+    class Cyp_Modern,PW_Parallel,Web_React,Web_Vue,Web_Angular,Web_Other complete
+    class Cyp_Old,E_Selenium,PW_Serial,E_Other warning
+    class Cyp_Legacy critical
+    class N_Mobile,N_Desktop complete
