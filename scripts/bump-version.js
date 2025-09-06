@@ -52,7 +52,7 @@ function generateVersion() {
 }
 
 function updateManifest(version) {
-  const manifestPath = path.join(__dirname, '..', 'knowledge', 'manifest.json');
+  const manifestPath = path.join(__dirname, '..', 'contexts', 'manifest.json');
   
   if (!fs.existsSync(manifestPath)) {
     console.error('Error: manifest.json not found at', manifestPath);
@@ -76,7 +76,7 @@ function main() {
   const args = process.argv.slice(2);
   const version = args[0] || generateVersion();
   
-  console.log('📦 SDSA Knowledge Version Bump');
+  console.log('📦 SDSA Contexts Version Bump');
   console.log('==============================');
   console.log(`New version: ${version}`);
   

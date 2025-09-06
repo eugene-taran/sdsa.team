@@ -44,5 +44,4 @@ out/
 .env.production.local
 
 # Temporary files
-tmp/
-temp/
+*.local.md

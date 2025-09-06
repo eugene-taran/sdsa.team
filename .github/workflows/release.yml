@@ -1,11 +1,11 @@
-name: Release Knowledge Content
+name: Release Contexts Content
 
 on:
   push:
     branches: [main]
     paths:
-      - 'knowledge/**'
-      - '!knowledge/manifest.json'
+      - 'contexts/**'
+      - '!contexts/manifest.json'
   workflow_dispatch:
 
 permissions:
@@ -54,115 +54,71 @@ jobs:
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "Generated version: ${VERSION}"
       
-      - name: Update manifest
+      - name: Generate manifest with checksum
         run: |
-          # Update version in manifest
-          node -e "
-            const fs = require('fs');
-            const manifestPath = 'knowledge/manifest.json';
-            const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-            manifest.version = '${{ steps.version.outputs.version }}';
-            manifest.released = new Date().toISOString();
-            fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
-            console.log('Updated manifest to version: ' + manifest.version);
-          "
+          # Set version for the manifest
+          export VERSION="${{ steps.version.outputs.version }}"
+          
+          # Generate checksum and create manifest.json
+          node scripts/generate-checksums.js --save-manifest
+          
+          echo "Manifest generated with version: $VERSION"
       
-      - name: Calculate checksums
+      - name: Verify checksum generation
         run: |
-          cd knowledge
-          # Generate checksums for all files
-          node -e "
-            const fs = require('fs');
-            const path = require('path');
-            const crypto = require('crypto');
-            
-            function getChecksum(filePath) {
-              const content = fs.readFileSync(filePath);
-              return crypto.createHash('sha256').update(content).digest('hex');
-            }
-            
-            function scanDirectory(dir, basePath = '') {
-              const checksums = {};
-              const files = fs.readdirSync(dir);
-              
-              files.forEach(file => {
-                const fullPath = path.join(dir, file);
-                const relativePath = path.join(basePath, file);
-                const stat = fs.statSync(fullPath);
-                
-                if (stat.isDirectory()) {
-                  Object.assign(checksums, scanDirectory(fullPath, relativePath));
-                } else if (file !== 'manifest.json') {
-                  checksums[relativePath] = getChecksum(fullPath);
-                }
-              });
-              
-              return checksums;
-            }
-            
-            const checksums = scanDirectory('.');
-            const manifest = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
-            manifest.checksums = checksums;
-            
-            // Calculate total size
-            const totalSize = Object.keys(checksums).reduce((sum, file) => {
-              const stat = fs.statSync(file);
-              return sum + stat.size;
-            }, 0);
-            manifest.size = Math.round(totalSize / 1024) + 'KB';
-            
-            fs.writeFileSync('manifest.json', JSON.stringify(manifest, null, 2));
-            console.log('Added checksums for ' + Object.keys(checksums).length + ' files');
-          "
+          if [ ! -f "contexts/manifest.json" ]; then
+            echo "❌ Error: manifest.json was not generated"
+            exit 1
+          fi
+          echo "✅ Manifest with checksum generated successfully"
       
       - name: Commit manifest updates
         run: |
           git config user.name "sdsa-release-bot[bot]"
           git config user.email "sdsa-release-bot[bot]@users.noreply.github.com"
-          git add knowledge/manifest.json
+          git add contexts/manifest.json
           git diff --cached --quiet || git commit -m "chore: update manifest for v${{ steps.version.outputs.version }}"
           git push origin main
       
       - name: Create release bundles
         run: |
-          cd knowledge
-          tar -czf ../knowledge-bundle-${{ steps.version.outputs.version }}.tar.gz .
-          zip -r ../knowledge-bundle-${{ steps.version.outputs.version }}.zip . -q
+          cd contexts
+          tar -czf ../contexts-bundle-${{ steps.version.outputs.version }}.tar.gz .
+          zip -r ../contexts-bundle-${{ steps.version.outputs.version }}.zip . -q
           
           # Also create latest versions
-          cp ../knowledge-bundle-${{ steps.version.outputs.version }}.tar.gz ../knowledge-bundle-latest.tar.gz
-          cp ../knowledge-bundle-${{ steps.version.outputs.version }}.zip ../knowledge-bundle-latest.zip
+          cp ../contexts-bundle-${{ steps.version.outputs.version }}.tar.gz ../contexts-bundle-latest.tar.gz
+          cp ../contexts-bundle-${{ steps.version.outputs.version }}.zip ../contexts-bundle-latest.zip
       
       - name: Generate changelog
         run: |
           cat > CHANGELOG.md << EOF
-          ## 🚀 Knowledge Content Release v${{ steps.version.outputs.version }}
+          ## 🚀 Contexts Content Release v${{ steps.version.outputs.version }}
           
           ### 📅 Released
           $(date -u +"%Y-%m-%d %H:%M UTC")
           
           ### 📦 Bundle Downloads
-          - [knowledge-bundle-${{ steps.version.outputs.version }}.tar.gz](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/knowledge-bundle-${{ steps.version.outputs.version }}.tar.gz)
-          - [knowledge-bundle-${{ steps.version.outputs.version }}.zip](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/knowledge-bundle-${{ steps.version.outputs.version }}.zip)
+          - [contexts-bundle-${{ steps.version.outputs.version }}.tar.gz](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/contexts-bundle-${{ steps.version.outputs.version }}.tar.gz)
+          - [contexts-bundle-${{ steps.version.outputs.version }}.zip](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/contexts-bundle-${{ steps.version.outputs.version }}.zip)
           
           ### 📊 Statistics
-          - Total knowledge blocks: $(find knowledge/blocks -name "*.yaml" 2>/dev/null | wc -l || echo 0)
-          - Total resources: $(find knowledge/resources -name "*.md" 2>/dev/null | wc -l || echo 0)
+          - Total categories: $(find contexts/categories -maxdepth 1 -type d | wc -l || echo 0)
+          - Total topics: $(find contexts/categories -name "*.json" -not -name "category.json" -not -name "manifest.json" 2>/dev/null | wc -l || echo 0)
           
           ### 🔗 Quick Links
-          - [View Manifest](https://raw.githubusercontent.com/${{ github.repository }}/main/knowledge/manifest.json)
-          - [View Catalog](https://raw.githubusercontent.com/${{ github.repository }}/main/knowledge/catalog.json)
+          - [View Manifest](https://raw.githubusercontent.com/${{ github.repository }}/main/contexts/manifest.json)
           EOF
       
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.version.outputs.version }}
-          name: Knowledge Content v${{ steps.version.outputs.version }}
+          name: Contexts Content v${{ steps.version.outputs.version }}
           body_path: CHANGELOG.md
           files: |
-            knowledge-bundle-*.tar.gz
-            knowledge-bundle-*.zip
+            contexts-bundle-*.tar.gz
+            contexts-bundle-*.zip
           draft: false
           prerelease: false
       
