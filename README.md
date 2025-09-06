@@ -2,160 +2,228 @@
 
 [![Release](https://img.shields.io/github/v/release/eugene-taran/sdsa.team)](https://github.com/eugene-taran/sdsa.team/releases/latest)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Knowledge Blocks](https://img.shields.io/badge/knowledge%20blocks-1-green)](knowledge/blocks)
+[![Knowledge Blocks](https://img.shields.io/badge/questionnaires-2-green)](knowledge/blocks)
 [![Contributors](https://img.shields.io/badge/contributors-welcome-brightgreen)](CLAUDE.md#contributing)
 
-Open-source knowledge repository for **SDSA (Software Development Smart Assist)** - Interactive learning paths for everyone in tech.
+Open-source questionnaire repository for **SDSA (Software Development Smart Assist)** - AI-powered development assistance through context-aware conversations.
 
 ## 🚀 What is SDSA?
 
-SDSA is a cross-platform application (iOS, Android, Web) that provides guided learning journeys through interactive knowledge trees. Unlike traditional documentation or Q&A, SDSA:
+SDSA is a cross-platform application (iOS, Android, Web) that provides personalized AI assistance by first understanding your context through interactive questionnaires. Unlike generic AI assistants, SDSA:
 
-- **Builds Context** - Walks through decision trees to understand your specific situation
-- **Provides Resources** - Surfaces relevant guides based on your journey
-- **AI Assistance** - Offers contextualized chat with full awareness of your path
-- **Privacy-First** - Free tier runs entirely on-device with offline support
+- **Gathers Context** - Uses questionnaires to understand your specific needs
+- **AI-Powered Chat** - Provides tailored recommendations based on your answers
+- **Privacy-First** - Your conversations stay private, questionnaires are open-source
+- **Offline Support** - Cached questionnaires work without internet
 
-## 📚 Repository Contents
-
-This repository contains:
-
-- **Knowledge Trees** (`knowledge/blocks/`) - Interactive decision trees in YAML format
-- **Resources** (`knowledge/resources/`) - Markdown guides and documentation
-- **Author Registry** (`knowledge/authors.json`) - Contributor recognition
-- **Release System** - Automated versioning and distribution
-
-## 🎯 Current Knowledge Blocks
-
-> **Note**: These knowledge blocks are currently stubs - they guide you through decision trees and connect you with AI assistance for detailed implementation help.
-
-| Topic | Description | Difficulty | Time |
-|-------|-------------|------------|------|
-| [E2E Testing](knowledge/blocks/e2e-testing.yaml) | Complete testing setup guide | Intermediate | 10 mins |
-| [CI/CD Pipeline](knowledge/blocks/cicd-pipeline.yaml) | Automation setup | Advanced | 20 mins |
-
-*More coming soon! [Contribute your own →](CLAUDE.md#contributing)*
-
-## 🤝 Contributing
-
-We welcome contributions! Add your knowledge:
-
-**Option A: Direct contribution (if you have write access)**
-1. **Create** a new branch
-2. **Add** your knowledge tree in `knowledge/blocks/`
-3. **Submit** a pull request
-
-**Option B: Fork contribution (for external contributors)**
-1. **Fork** this repository
-2. **Create** your knowledge tree in `knowledge/blocks/`
-3. **Submit** a pull request from your fork
-
-See [CLAUDE.md](CLAUDE.md) for detailed contribution guidelines.
-
-### Quick Example
-
-```yaml
-id: 'your-topic'
-title: 'Your Topic Title'
-initial_question: 'Starting question?'
-paths:
-  yes:
-    question: 'Follow-up question?'
-    options: ['option1', 'option2']
-    paths:
-      option1:
-        summary: 'AI assistant can help with implementation details'
-      option2:
-        summary: 'Ask the AI for specific guidance'
-  no:
-    summary: 'The AI can provide alternative approaches'
-metadata:
-  author: 'your-github-username'
-  version: '1.0.0'
-  created: '2024-12-15'
-  difficulty: 'intermediate'
-```
-
-## 📦 Releases
-
-Knowledge content is automatically versioned and released:
-
-- **Latest Bundle**: [Download →](https://github.com/eugene-taran/sdsa.team/releases/latest)
-- **Manifest**: [View →](https://raw.githubusercontent.com/eugene-taran/sdsa.team/main/knowledge/manifest.json)
-- **Version Format**: `YYYY.MM.DD.PATCH`
-
-
-## 🏗️ Repository Structure
+## 📚 Repository Structure
 
 ```
 knowledge/
 ├── manifest.json         # Version and checksums
-├── catalog.json         # Available topics
-├── authors.json         # Contributors
-├── blocks/              # Knowledge trees (YAML)
-│   └── *.yaml
-└── resources/           # Guides (Markdown)
-    └── *.md
+└── blocks/              # Questionnaire JSON files
+    ├── e2e-testing.json
+    ├── cicd-pipeline.json
+    └── ...
 ```
 
-## 👥 Authors & Contributors
+## 🎯 How It Works
 
-Knowledge blocks are created by the community. Each block includes author attribution, and contributors are recognized in the [authors registry](knowledge/authors.json).
+1. **Choose a questionnaire** - Select from available topics
+2. **Answer questions** - Provide context about your specific situation
+3. **Get AI assistance** - Receive personalized recommendations via chat
+4. **Continue conversation** - Ask follow-up questions with full context
 
-### Become a Contributor
+## 📝 Questionnaire Format
 
-1. Create valuable content
-2. Add yourself to `authors.json`
-3. Get recognized in the app!
+Questionnaires use JSON with react-hook-form compatible structure. The `id` should match the filename (e.g., file `e2e-testing.json` has `id: "e2e-testing"`). Metadata is optional and currently only contains the author field:
 
-## 🔗 Links
+```json
+{
+  "id": "your-topic-name",
+  "title": "Questionnaire Title",
+  "description": "What this helps with",
+  "questions": [
+    {
+      "id": "q1",
+      "type": "radio",
+      "label": "Your question?",
+      "options": [
+        { "value": "opt1", "label": "Option 1" },
+        { "value": "opt2", "label": "Option 2" }
+      ]
+    }
+  ],
+  "llmConfig": {
+    "systemPrompt": "You are an expert...",
+    "temperature": 0.7,
+    "maxTokens": 1500
+  },
+  "metadata": {
+    "author": "github-username"
+  }
+}
+```
 
-- **Documentation**: [CLAUDE.md](CLAUDE.md)
-- **Website**: [sdsa.team](https://sdsa.team)
-- **Releases**: [GitHub Releases](https://github.com/eugene-taran/sdsa.team/releases)
+## 📊 Available Question Types
 
-## 🛠️ Development
+### Input Types (4 total)
+- **text** - Single-line text input (names, numbers, emails, etc.)
+- **textarea** - Multi-line text input (descriptions, requirements)
+- **radio** - Single choice from options
+- **checkbox** - Multiple choice selection
 
-### Prerequisites
+### Features
+- **Text Input on Options** - Any radio/checkbox option can have `hasTextInput: true`
+- **Placeholders** - Help text for users
 
-- **Node.js**: Required for running validation scripts
+## 🎮 Full Example: CI/CD Setup Questionnaire
 
-### Test Your Content
+```json
+{
+  "id": "cicd-setup",
+  "title": "CI/CD Pipeline Configuration",
+  "description": "Get personalized CI/CD setup recommendations",
+  "questions": [
+    {
+      "id": "platform",
+      "type": "radio",
+      "label": "Which CI/CD platform are you using?",
+      "options": [
+        { "value": "github-actions", "label": "GitHub Actions" },
+        { "value": "jenkins", "label": "Jenkins" },
+        { "value": "gitlab-ci", "label": "GitLab CI" },
+        { 
+          "value": "other", 
+          "label": "Other", 
+          "hasTextInput": true,
+          "textInputPlaceholder": "Please specify..."
+        }
+      ]
+    },
+    {
+      "id": "projectType",
+      "type": "checkbox",
+      "label": "What type of projects will you build?",
+      "options": [
+        { "value": "nodejs", "label": "Node.js" },
+        { "value": "python", "label": "Python" },
+        { "value": "docker", "label": "Docker" },
+        { "value": "mobile", "label": "Mobile (iOS/Android)" }
+      ]
+    },
+    {
+      "id": "deploymentTarget",
+      "type": "radio",
+      "label": "Where will you deploy?",
+      "options": [
+        { "value": "aws", "label": "AWS" },
+        { "value": "gcp", "label": "Google Cloud" },
+        { "value": "azure", "label": "Azure" },
+        { "value": "self-hosted", "label": "Self-hosted servers" }
+      ]
+    },
+    {
+      "id": "teamSize",
+      "type": "text",
+      "label": "How many developers on your team?",
+      "placeholder": "Enter number"
+    },
+    {
+      "id": "hasTests",
+      "type": "radio",
+      "label": "Do you have automated tests?",
+      "options": [
+        { "value": "yes", "label": "Yes" },
+        { "value": "no", "label": "No" }
+      ]
+    },
+    {
+      "id": "testTypes",
+      "type": "checkbox",
+      "label": "Which test types?",
+      "options": [
+        { "value": "unit", "label": "Unit Tests" },
+        { "value": "integration", "label": "Integration Tests" },
+        { "value": "e2e", "label": "End-to-End Tests" },
+        { "value": "performance", "label": "Performance Tests" }
+      ]
+    },
+    {
+      "id": "requirements",
+      "type": "textarea",
+      "label": "Any specific requirements or constraints?",
+      "placeholder": "E.g., must comply with SOC2, need blue-green deployments...",
+      "rows": 4
+    }
+  ],
+  "llmConfig": {
+    "systemPrompt": "You are a DevOps expert. Based on the user's CI/CD requirements, provide specific configuration examples, best practices, and step-by-step implementation guidance. Include actual config files where relevant.",
+    "temperature": 0.7,
+    "maxTokens": 2000
+  },
+  "metadata": {
+    "author": "eugene-taran"
+  }
+}
+```
 
+## 🤝 Contributing
+
+We welcome contributions! Add your expertise:
+
+### Quick Start
+
+1. **Fork** this repository
+2. **Create** your questionnaire:
 ```bash
-# Clone repository
-git clone https://github.com/eugene-taran/sdsa.team
-cd sdsa.team
-
-# Validate all YAML files
-node scripts/validate.js
-
-# Validate a specific file
-node scripts/validate.js knowledge/blocks/your-topic.yaml
-
-# Generate checksums
-node scripts/generate-checksums.js
+# Create new questionnaire file
+touch knowledge/blocks/your-topic.json
 ```
+3. **Add** your questions following the format above
+4. **Submit** a pull request
 
+### Contribution Guidelines
+
+- **Focus on context gathering** - Questions should help understand the user's specific situation
+- **Be comprehensive** - Cover common scenarios and edge cases
+- **Write clear labels** - Questions should be easy to understand
+- **Include good prompts** - Help the LLM provide valuable responses
+
+### Ideas for Contributions
+
+- Architecture decisions (monolith vs microservices)
+- Database selection helper
+- Authentication implementation guide
+- API design questionnaire
+- Testing strategy advisor
+- Performance optimization guide
+- Security audit checklist
+- Cloud migration planner
+
+## 📱 For End Users
+
+1. Open SDSA app (coming soon to App Store/Play Store)
+2. Browse available questionnaires
+3. Complete relevant questions
+4. Chat with AI using your context
+
+## 🔄 Versioning
+
+- Questionnaires are versioned individually
+- The repository uses date-based releases: `YYYY.MM.DD.PATCH`
+- Apps can cache and check for updates via `manifest.json`
 
 ## 📄 License
 
-All knowledge content is available under the [MIT License](LICENSE). Free to use, modify, and distribute.
+MIT - See [LICENSE](LICENSE) for details
 
 ## 🙏 Acknowledgments
 
-- Built for the developer community
-- Powered by React Native
-- Inspired by the need for better learning paths
+Built with ❤️ by the open-source community for developers everywhere.
 
-## 📮 Support
-
-- **Issues**: [Report bugs or suggest features](https://github.com/eugene-taran/sdsa.team/issues)
-- **Discussions**: [Ask questions, share ideas](https://github.com/eugene-taran/sdsa.team/discussions)
-- **Pull Requests**: [Contribute content](https://github.com/eugene-taran/sdsa.team/pulls)
+Special thanks to all [contributors](https://github.com/eugene-taran/sdsa.team/graphs/contributors)!
 
 ---
 
-**Ready to contribute?** Check out [CLAUDE.md](CLAUDE.md) for detailed guidelines or jump right in by [creating your first knowledge block](CLAUDE.md#adding-a-new-knowledge-tree)!
-
-*Made with ❤️ by the SDSA community*
+**Want to contribute?** Check out our [detailed guide](CLAUDE.md) or open an issue with your ideas!

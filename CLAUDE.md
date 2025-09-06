@@ -4,23 +4,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is the public knowledge repository for SDSA (Software Development Smart Assist). It contains all knowledge trees, resources, and learning paths that power the SDSA application across all platforms (iOS, Android, and Web).
+This is the public knowledge repository for SDSA (Software Development Smart Assist). It contains JSON questionnaires that collect context from users to provide personalized AI-powered recommendations.
 
 ## Purpose
 
-- **Knowledge Trees**: Interactive decision trees that guide everyone in tech through complex topics
-- **Resources**: Markdown guides and documentation referenced by knowledge trees
+- **Contexts Questionnaires**: Context-gathering questionnaires that collect user requirements and preferences
+- **AI-Powered Recommendations**: User answers are processed by LLM to generate personalized guidance
 - **Community Driven**: Open for contributions via pull requests
 - **Author Attribution**: Contributors are recognized in the app
 
 ## Common Development Commands
 
 ```bash
-# Validate all YAML files in knowledge/blocks/
+# Validate all JSON files in contexts/topics/
 node scripts/validate.js
 
-# Validate a specific knowledge tree
-node scripts/validate.js knowledge/blocks/your-topic.yaml
+# Validate a specific questionnaire
+node scripts/validate.js contexts/topics/your-topic.json
 
 # Generate checksums for all files (updates manifest.json)
 node scripts/generate-checksums.js
@@ -33,24 +33,18 @@ node scripts/bump-version.js
 
 ```
 sdsa.team/
-├── knowledge/
+├── contexts/
 │   ├── manifest.json         # Version and checksum information
-│   ├── catalog.json         # List of available topics
-│   ├── authors.json         # Contributor registry
-│   ├── blocks/              # Knowledge tree YAML files
-│   │   ├── e2e-testing.yaml
-│   │   ├── react-setup.yaml
-│   │   └── ...
-│   └── resources/           # Markdown documentation
-│       ├── cypress-modern-setup.md
-│       ├── playwright-parallel-setup.md
+│   └── cicd/                 # Domain
+│       ├── e2e-testing.json  # Questionnaire JSON files
+│       ├── cicd-pipeline.json
 │       └── ...
 ├── .github/
 │   └── workflows/
 │       ├── release.yml      # Automated release workflow
 │       └── validate-pr.yml  # PR validation checks
 ├── scripts/
-│   ├── validate.js          # YAML validation script
+│   ├── validate.js          # JSON validation script
 │   ├── bump-version.js      # Version management
 │   └── generate-checksums.js # Integrity verification
 └── docs/
@@ -61,14 +55,14 @@ sdsa.team/
 ## High-Level Architecture
 
 ### Content Distribution Model
-- **Static Repository**: All knowledge trees and resources are stored as static files (YAML/Markdown)
+- **Static Repository**: All questionnaires are stored as static JSON files
 - **Version-Based Releases**: Content is bundled and versioned using date-based format (YYYY.MM.DD.PATCH)
 - **GitHub Raw API**: Apps fetch content directly from GitHub's raw content CDN
 - **Offline-First**: Apps cache content locally for offline access
 
 ### Automated Workflow System
-1. **PR Validation** (`validate-pr.yml`): Runs on every PR that modifies knowledge content
-   - Validates YAML syntax
+1. **PR Validation** (`validate-pr.yml`): Runs on every PR that modifies contexts content
+   - Validates JSON syntax
    - Checks author attribution
    - Verifies resource references exist
    - Ensures required files are present
@@ -80,61 +74,146 @@ sdsa.team/
    - Creates GitHub release with bundled artifacts
 
 ### Content Validation Rules
-- All YAML files must have valid syntax (2-space indentation, no tabs)
-- Every knowledge block must include metadata with author attribution
-- Referenced resources must exist in knowledge/resources/
-- Authors must be registered in authors.json
+- All JSON files must have valid syntax
+- ID should match the filename (without .json extension)
 
-## Knowledge Tree Format
+## Questionnaire Format
 
 ### Basic Structure
 
-```yaml
-id: 'unique-identifier'
-title: 'Display Title'
-description: 'Brief description'
-initial_question: 'Starting question?'
+The `id` field should match the filename without extension (e.g., file `e2e-testing.json` should have `id: "e2e-testing"`). Metadata is optional and currently only contains the author field:
 
-paths:
-  answer1:
-    question: 'Follow-up question?'
-    options: ['option1', 'option2']
-    resources: 
-      - 'guide1.md'
-    paths:
-      option1:
-        resources: 
-          - 'specific-guide.md'
-        summary: 'Terminal node message'
-      option2:
-        # More nested paths...
-  
-  answer2:
-    resources:
-      - 'alternative-guide.md'
-    summary: 'Different path conclusion'
+```json
+{
+  "id": "e2e-testing",
+  "title": "E2E Testing Setup", 
+  "description": "Help configure end-to-end testing for your project",
+  "questions": [
+    {
+      "type": "radio",
+      "label": "What is your primary use case?",
+      "options": [
+        {
+          "value": "option1",
+          "label": "Option 1 Display Text"
+        },
+        {
+          "value": "option2", 
+          "label": "Option 2 Display Text"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "label": "Which features do you need?",
+      "options": [
+        {
+          "value": "feature1",
+          "label": "Feature 1"
+        },
+        {
+          "value": "feature2",
+          "label": "Feature 2"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "label": "Describe any specific requirements",
+      "placeholder": "Enter your requirements..."
+    }
+  ],
+  "llmConfig": {
+    "systemPrompt": "You are an expert assistant. Based on the user's answers, provide specific, actionable recommendations.",
+    "temperature": 0.7,
+    "maxTokens": 1500
+  },
+  "metadata": {
+    "author": "github-username"
+  }
+}
+```
 
-context_variables:
-  - variable_name1
-  - variable_name2
+### Question Types and Examples
 
-metadata:
-  author: 'github-username'  # Your GitHub username
-  version: '1.0.0'
-  created: '2024-12-15'
-  last_updated: '2024-12-15'
-  estimated_time: '10 minutes'
-  difficulty: 'beginner|intermediate|advanced'
-  tags: ['tag1', 'tag2']
+#### 1. Text Input (Single-line)
+```json
+{
+  "type": "text",
+  "label": "What is your project name?",
+  "placeholder": "Enter project name"
+}
+```
+
+#### 2. Textarea (Multi-line)
+```json
+{
+  "type": "textarea",
+  "label": "Describe your requirements",
+  "placeholder": "Enter detailed description..."
+}
+```
+
+#### 3. Radio Buttons (Single Choice)
+```json
+{
+  "type": "radio",
+  "label": "Select your platform",
+  "options": [
+    { "value": "aws", "label": "Amazon Web Services" },
+    { "value": "gcp", "label": "Google Cloud Platform" },
+    { "value": "azure", "label": "Microsoft Azure" }
+  ]
+}
+```
+
+#### 4. Radio with Text Input Option
+```json
+{
+  "type": "radio",
+  "label": "Which framework are you using?",
+  "options": [
+    { "value": "react", "label": "React" },
+    { "value": "vue", "label": "Vue" },
+    { "value": "angular", "label": "Angular" },
+    { 
+      "value": "other", 
+      "label": "Other", 
+      "hasTextInput": true,
+      "textInputPlaceholder": "Please specify..."
+    }
+  ]
+}
+```
+
+#### 5. Checkboxes (Multiple Choice)
+```json
+{
+  "type": "checkbox",
+  "label": "Select features you need",
+  "options": [
+    { "value": "auth", "label": "Authentication" },
+    { "value": "database", "label": "Database Integration" },
+    { "value": "api", "label": "REST API" },
+    { 
+      "value": "other", 
+      "label": "Other", 
+      "hasTextInput": true,
+      "textInputPlaceholder": "Specify other features..."
+    }
+  ]
+}
 ```
 
 ### Key Concepts
 
-1. **Paths**: Each user answer creates a new path branch
-2. **Resources**: Markdown files shown at any node (accumulate through journey)
-3. **Terminal Nodes**: End with `summary` and/or `resources`, no more questions
-4. **Context Variables**: Track user's journey for AI chat context
-5. **Metadata**: Author attribution and content metadata
+1. **ID Format**: Use kebab-case like filename (e.g., "cicd-setup", "e2e-testing")
+2. **Questions Array**: All questions in a flat array with unique IDs
+3. **Four Input Types**: text, textarea, radio, checkbox
+4. **Text Input Options**: Any option can have `hasTextInput: true` for custom values
+5. **Validation**: Optional validation rules (maxLength, minLength, patterns)
+6. **LLM Configuration**: Settings for AI chat responses
+7. **Metadata**: Optional, currently only contains author field
 
 ## Contributing
 
@@ -145,102 +224,59 @@ metadata:
 ### Critical Development Rules
 
 1. **NEVER modify manifest.json manually** - It's auto-generated by scripts and GitHub Actions
-2. **All knowledge blocks MUST have metadata.author** - PRs will fail validation without it
-3. **Resource files are referenced by filename only** - Not full paths (e.g., 'guide.md' not 'resources/guide.md')
+2. **Question IDs must be unique** - Within each questionnaire file
 4. **Use scripts/validate.js before committing** - Catches errors before PR submission
 5. **Version format is automatic** - Don't create version tags manually
 
-### Adding a New Knowledge Tree
+### Adding a New Questionnaire
 
 1. **Fork this repository**
 
-2. **Create your knowledge tree**:
+2. **Create your questionnaire**:
 ```bash
-# Create new YAML file
-touch knowledge/blocks/your-topic.yaml
+# Create new JSON file
+touch contexts/topics/your-topic.json
 ```
 
-3. **Add yourself as author**:
+3. **Add questionnaire content**:
 ```json
-// In knowledge/authors.json
-{
-  "your-github-username": {
-    "name": "Your Name",
-    "github": "your-github-username",
-    "avatar": "https://github.com/your-github-username.png",
-    "bio": "Brief bio",
-    "contributions": ["your-topic"],
-    "joined": "2024-12-15"
-  }
-}
-```
-
-4. **Create supporting resources**:
-```bash
-# Add markdown guides
-touch knowledge/resources/your-guide.md
-```
-
-5. **Update catalog**:
-```json
-// In knowledge/catalog.json
 {
   "id": "your-topic",
   "title": "Your Topic Title",
   "description": "Brief description",
-  "category": "category-name",
-  "difficulty": "intermediate",
-  "estimatedTime": "15 mins",
-  "blockId": "your-topic"
+  "questions": [
+    {
+      "id": "q1",
+      "type": "radio",
+      "label": "Your first question?",
+      "options": [
+        { "value": "option1", "label": "Option 1" },
+        { "value": "option2", "label": "Option 2" }
+      ]
+    }
+  ],
+  "llmConfig": {
+    "systemPrompt": "You are an expert assistant...",
+    "temperature": 0.7,
+    "maxTokens": 1500
+  },
+  "metadata": {
+    "author": "your-github-username"
+  }
 }
 ```
 
-6. **Submit pull request**
-
-### Resource Guidelines
-
-Resources should:
-- Be self-contained markdown files
-- Include code examples with syntax highlighting
-- Have clear sections and headings
-- Include author attribution at the bottom
-- Focus on practical, actionable content
-
-Example resource structure:
-```markdown
-# Title
-
-## Overview
-Brief introduction
-
-## Installation
-Step-by-step setup
-
-## Configuration
-Code examples
-
-## Best Practices
-Recommendations
-
-## Troubleshooting
-Common issues and solutions
-
----
-*Author: github-username | Last updated: 2024-12-15*
-```
+4. **Submit pull request**
 
 ### Validation
 
 Before submitting:
 ```bash
-# Validate all YAML files
+# Validate all JSON files
 node scripts/validate.js
 
 # Or validate a specific file
-node scripts/validate.js knowledge/blocks/your-topic.yaml
-
-# Generate checksums
-node scripts/generate-checksums.js
+node scripts/validate.js contexts/topics/your-topic.json
 ```
 
 ## Release Process
@@ -249,7 +285,7 @@ node scripts/generate-checksums.js
 
 Releases are automated via GitHub Actions:
 
-1. **Trigger**: Push to `main` branch with changes in `knowledge/` folder
+1. **Trigger**: Push to `main` branch with changes in `contexts/` folder
 2. **Version**: Date-based format `YYYY.MM.DD.PATCH`
 3. **Artifacts**: Creates `.zip` and `.tar.gz` bundles
 4. **Distribution**: Published as GitHub releases
@@ -262,36 +298,21 @@ The `manifest.json` is automatically updated with:
 - File checksums
 - Content statistics
 
-### Consuming Releases
-
-The SDSA app fetches content from:
-- **Manifest**: `https://raw.githubusercontent.com/eugene-taran/sdsa.team/main/knowledge/manifest.json`
-- **Bundle**: `https://github.com/eugene-taran/sdsa.team/releases/latest/download/knowledge-bundle.zip`
-
-## Content Guidelines
 
 ### Quality Standards
 
-- **Accuracy**: Information must be technically correct
-- **Clarity**: Clear, concise explanations
-- **Completeness**: Cover common scenarios
+- **Clarity**: Information should help LLM to gather context
 - **Maintenance**: Keep content up-to-date
 
 ### Topic Selection
 
-Good topics for knowledge trees:
+Good topics for questionnaires:
 - Complex setup processes (CI/CD, testing, deployment)
 - Framework configurations (React, Vue, Angular)
 - Tool integrations (Docker, Kubernetes)
 - Best practices and patterns
 - Troubleshooting guides
 
-### Depth Guidelines
-
-- **Minimum**: 2-3 levels of questions
-- **Maximum**: No hard limit, but consider UX
-- **Balance**: Mix of quick and detailed paths
-- **Resources**: At least 1-2 resources per major path
 
 ## Testing Your Content
 
@@ -300,12 +321,6 @@ Good topics for knowledge trees:
 ```bash
 # Always run before committing:
 node scripts/validate.js
-
-# This checks:
-# - YAML syntax validity
-# - Proper indentation (2 spaces, no tabs)
-# - Required fields presence
-# - Basic structure compliance
 ```
 
 ### Local Testing
@@ -318,23 +333,19 @@ cd sdsa.team
 
 2. **Validate structure**:
 ```bash
-# Check YAML validity
-node scripts/validate.js knowledge/blocks/your-topic.yaml
+# Check JSON validity
+node scripts/validate.js contexts/blocks/your-topic.json
 ```
 
 3. **Verify structure**:
-- Ensure YAML follows the correct format
-- Check that resources exist
-- Validate all paths are complete
+- Ensure JSON follows the questionnaire format
 
 ### Pull Request Testing
 
 When you submit a pull request, automated checks will run:
 
-1. **YAML Validation**: All YAML files must pass syntax validation
-2. **Required Files**: Checks for manifest.json, catalog.json, authors.json
-3. **Author Attribution**: Ensures all blocks have author metadata
-4. **Resource References**: Validates that all referenced resources exist
+1. **JSON Validation**: All JSON files must pass syntax validation
+3. **Question Validation**: Checks for valid types and correct fields
 
 The PR will be blocked from merging if any validation fails. You'll see:
 - ✅ Green check if all validations pass
@@ -360,40 +371,11 @@ Manual review will check:
 - Help others learn and grow
 - Attribute sources properly
 
-## API Endpoints
-
-### Public Access Points
-
-```bash
-# Get manifest (version info)
-curl https://raw.githubusercontent.com/eugene-taran/sdsa.team/main/knowledge/manifest.json
-
-# Get catalog (topic list)
-curl https://raw.githubusercontent.com/eugene-taran/sdsa.team/main/knowledge/catalog.json
-
-# Get specific block
-curl https://raw.githubusercontent.com/eugene-taran/sdsa.team/main/knowledge/blocks/e2e-testing.yaml
-
-# Get resource
-curl https://raw.githubusercontent.com/eugene-taran/sdsa.team/main/knowledge/resources/cypress-modern-setup.md
-
-# Download full bundle
-curl -L https://github.com/eugene-taran/sdsa.team/releases/latest/download/knowledge-bundle.zip
-```
-
-### Rate Limiting
-
-GitHub raw content has rate limits:
-- **Unauthenticated**: 60 requests/hour
-- **Authenticated**: 5000 requests/hour
-
-The SDSA app caches content locally to minimize API calls.
-
 ## Licensing
 
 ### Content License
 
-All knowledge content is available under [MIT License](LICENSE):
+All contexts content is available under [MIT License](LICENSE):
 - Free to use, modify, and distribute
 - Attribution appreciated but not required
 - No warranty provided
@@ -401,25 +383,18 @@ All knowledge content is available under [MIT License](LICENSE):
 ### Contribution Agreement
 
 By contributing, you agree that:
-- Your content is original or properly attributed
 - You grant MIT license for your contributions
-- You're listed in `authors.json` for attribution
 
 ## Roadmap
 
+- 
+
 ### Current Features
-- ✅ Knowledge tree system
-- ✅ Resource management
+- ✅ Questionnaire system
+- ✅ LLM integration configuration
 - ✅ Author attribution
 - ✅ Automated releases
 - ✅ Version management
-
-### Planned Features
-- 📋 Knowledge tree templates
-- 📋 Interactive preview tool
-- 📋 Translation support
-- 📋 Difficulty progression tracking
-- 📋 Community voting/rating
 
 ## Maintenance
 
@@ -442,3 +417,4 @@ When content becomes outdated:
 
 - **Repository**: [github.com/eugene-taran/sdsa.team](https://github.com/eugene-taran/sdsa.team)
 - **Maintainer**: Eugene Taran (@eugene-taran)
+- always remember that we are building questionaires
