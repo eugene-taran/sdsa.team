@@ -1,4 +1,12 @@
-# SDSA Contexts Repository
+# ⚠️ DEPRECATED - This repository has been deprecated
+
+## This project has moved to [https://github.com/eugene-taran/sdsa](https://github.com/eugene-taran/sdsa)
+
+All functionality, contexts, and future development is now consolidated in the main SDSA repository.
+
+---
+
+# SDSA Contexts Repository (Archived)
 
 [![Release](https://img.shields.io/github/v/release/eugene-taran/sdsa.team)](https://github.com/eugene-taran/sdsa.team/releases/latest)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
